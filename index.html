@@ -1,0 +1,498 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>推し活の箱庭記録</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="app" id="app">
+      <section class="view view-home active" id="home-view" aria-labelledby="home-title">
+        <div class="landscape-shell">
+          <div class="sky weather-clear" id="home-sky">
+            <div class="sky-copy">
+              <p class="eyebrow">日記・かたち・風景</p>
+              <h1 id="home-title">推し活の箱庭記録</h1>
+            </div>
+            <form class="weather-panel" id="home-weather-form" aria-label="天気だけ入力">
+              <label>
+                天気
+                <select id="home-weather-select" name="weather" required>
+                  <option value="clear">晴れ</option>
+                  <option value="cloudy">くもり</option>
+                  <option value="rain">雨</option>
+                  <option value="fog">霧</option>
+                  <option value="storm">嵐</option>
+                  <option value="dawn">夜明け</option>
+                  <option value="sunset">夕焼け</option>
+                  <option value="night">夜</option>
+                </select>
+              </label>
+              <button type="submit">空に置く</button>
+            </form>
+            <div class="star-field" id="star-field" aria-label="大切な記録の星"></div>
+            <div class="mist"></div>
+            <div class="rain-lines"></div>
+          </div>
+
+          <div class="sea wave-calm" id="home-sea" aria-label="海">
+            <span></span>
+            <span></span>
+          </div>
+
+          <div class="land" aria-label="自分の風景">
+            <div class="placed-shapes" id="placed-shapes"></div>
+
+            <div class="building-row" aria-label="風景の入口">
+              <button class="building building-library" type="button" data-view="library" aria-label="記録の図書館を開く">
+                <span class="building-roof"></span>
+                <span class="building-body">
+                  <span class="building-window"></span>
+                  <span class="building-door"></span>
+                </span>
+                <span class="building-label">記録の図書館</span>
+              </button>
+
+              <button class="building building-atelier" type="button" data-view="atelier" aria-label="かたちのアトリエを開く">
+                <span class="building-roof"></span>
+                <span class="building-body">
+                  <span class="atelier-paper"></span>
+                  <span class="atelier-ruler"></span>
+                </span>
+                <span class="building-label">かたちのアトリエ</span>
+              </button>
+
+              <button class="building building-gallery" type="button" data-view="gallery" aria-label="かたちの美術館を開く">
+                <span class="building-roof"></span>
+                <span class="building-body">
+                  <span class="gallery-frame"></span>
+                  <span class="gallery-frame small"></span>
+                </span>
+                <span class="building-label">かたちの美術館</span>
+              </button>
+
+              <button class="building building-lighthouse" type="button" data-view="settings" aria-label="灯台、設定と管理を開く">
+                <span class="lighthouse-scene">
+                  <span class="lighthouse-light"></span>
+                  <span class="lighthouse-tower">
+                    <span></span>
+                    <span></span>
+                  </span>
+                </span>
+                <span class="building-label">灯台<small>設定と管理</small></span>
+              </button>
+            </div>
+
+            <div class="flowers" aria-hidden="true">
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+
+            <div class="guide-creature" aria-live="polite">
+              <div class="creature-body">
+                <span></span>
+                <span></span>
+              </div>
+              <p id="creature-message">書けるところからで大丈夫です。</p>
+            </div>
+          </div>
+
+          <button class="strata-preview" id="strata-preview" type="button" data-view="strata" aria-label="地層をたどる">
+            <span class="strata-title">地層をたどる</span>
+            <span class="layer-stack" id="home-layer-stack"></span>
+          </button>
+        </div>
+      </section>
+
+      <section class="view view-library" id="library-view" aria-labelledby="library-title">
+        <header class="screen-header library-header">
+          <button class="quiet-button" type="button" data-view="home">← 風景へ戻る</button>
+          <div>
+            <p class="eyebrow">記録の図書館</p>
+            <h2 id="library-title">まだ言葉にならないものを、ここに置けます。</h2>
+          </div>
+        </header>
+
+        <div class="library-room">
+          <div class="library-side">
+            <form class="weather-only-panel" id="quick-weather-form">
+              <p class="panel-kicker">空だけ整える</p>
+              <label>
+                今日の天気
+                <select id="quick-weather-select" name="weather" required>
+                  <option value="clear">晴れ</option>
+                  <option value="cloudy">くもり</option>
+                  <option value="rain">雨</option>
+                  <option value="fog">霧</option>
+                  <option value="storm">嵐</option>
+                  <option value="dawn">夜明け</option>
+                  <option value="sunset">夕焼け</option>
+                  <option value="night">夜</option>
+                </select>
+              </label>
+              <button class="primary-button" type="submit">空に置く</button>
+              <p class="form-note" id="quick-weather-status" aria-live="polite"></p>
+            </form>
+
+            <form class="free-memo-panel" id="free-memo-form">
+              <p class="panel-kicker">フリーメモ</p>
+              <label>
+                日記にする前の置き場所
+                <textarea id="free-memo-input" name="freeMemo" rows="7" placeholder="まだ日記にしなくてよい言葉を、ここに置けます。"></textarea>
+              </label>
+              <button class="quiet-button" type="submit">メモを残す</button>
+              <p class="form-note" id="free-memo-status" aria-live="polite"></p>
+            </form>
+          </div>
+
+          <form class="journal-desk" id="diary-form">
+            <label>
+              タイトル
+              <input id="diary-title" name="title" type="text" placeholder="例：今日の発表を見たあと" required>
+            </label>
+
+            <label class="wide diary-body-single" data-body-mode="single">
+              本文
+              <textarea name="body" rows="7" placeholder="書けるところからで大丈夫です。" required></textarea>
+            </label>
+
+            <div class="diary-both-fields wide" data-body-mode="both" hidden>
+              <label>
+                内側の記録
+                <textarea name="innerBody" rows="7" placeholder="自分の感情、記憶、価値観など。"></textarea>
+              </label>
+              <label>
+                外側の記録
+                <textarea name="outerBody" rows="7" placeholder="公式、SNS、世間、情報環境など。"></textarea>
+              </label>
+            </div>
+
+            <label>
+              記録タイプ
+              <select name="recordType" required>
+                <option value="inner">内側の記録</option>
+                <option value="outer">外側の記録</option>
+                <option value="both">両方の記録</option>
+              </select>
+            </label>
+
+            <label>
+              今日の天気
+              <select name="weather" required>
+                <option value="clear">晴れ</option>
+                <option value="cloudy">くもり</option>
+                <option value="rain">雨</option>
+                <option value="fog">霧</option>
+                <option value="storm">嵐</option>
+                <option value="dawn">夜明け</option>
+                <option value="sunset">夕焼け</option>
+                <option value="night">夜</option>
+              </select>
+            </label>
+
+            <label>
+              波の状態
+              <select name="wave" required>
+                <option value="calm">穏やか</option>
+                <option value="restless">少しざわざわ</option>
+                <option value="rough">大きく揺れている</option>
+              </select>
+            </label>
+
+            <label class="check-row">
+              <input name="important" type="checkbox">
+              <span>大事な記録にする</span>
+            </label>
+
+            <button class="primary-button wide" type="submit">記録を地層に積む</button>
+            <p class="form-note wide" id="diary-status" aria-live="polite"></p>
+          </form>
+        </div>
+      </section>
+
+      <section class="view view-atelier" id="atelier-view" aria-labelledby="atelier-title">
+        <header class="screen-header atelier-header">
+          <button class="quiet-button" type="button" data-view="home">← 風景へ戻る</button>
+          <div>
+            <p class="eyebrow">かたちのアトリエ</p>
+            <h2 id="atelier-title">関係性を、線と円で少しだけ外に出す。</h2>
+          </div>
+        </header>
+
+        <div class="atelier-room">
+          <form class="shape-form" id="shape-form">
+            <div class="shape-tabs" role="tablist" aria-label="図形タイプ">
+              <button class="shape-tab active" type="button" data-shape-kind="triangle" role="tab" aria-selected="true">△ 三角形</button>
+              <button class="shape-tab" type="button" data-shape-kind="circle" role="tab" aria-selected="false">◎ 円</button>
+              <button class="shape-tab" type="button" data-shape-kind="venn" role="tab" aria-selected="false">○○ ベン図</button>
+            </div>
+
+            <input type="hidden" name="kind" id="shape-kind" value="triangle">
+
+            <label>
+              図形タイトル
+              <input name="title" type="text" placeholder="例：自分・推し・公式の距離" required>
+            </label>
+
+            <div class="shape-fields shape-fields-triangle active" data-fields="triangle">
+              <label>
+                点Aのラベル
+                <input name="pointA" type="text" value="自分">
+              </label>
+              <label>
+                点Bのラベル
+                <input name="pointB" type="text" value="推し">
+              </label>
+              <label>
+                点Cのラベル
+                <input name="pointC" type="text" placeholder="例：公式、世間、SNS">
+              </label>
+              <label>
+                A → B
+                <input name="arrowAB" type="text" placeholder="例：見守りたい">
+              </label>
+              <label>
+                B → A
+                <input name="arrowBA" type="text" placeholder="例：受け取っている">
+              </label>
+              <label>
+                A → C
+                <input name="arrowAC" type="text" placeholder="例：距離を置きたい">
+              </label>
+              <label>
+                C → A
+                <input name="arrowCA" type="text" placeholder="例：情報が届く">
+              </label>
+              <label>
+                B → C
+                <input name="arrowBC" type="text" placeholder="例：関係している">
+              </label>
+              <label>
+                C → B
+                <input name="arrowCB" type="text" placeholder="例：期待を向ける">
+              </label>
+            </div>
+
+            <div class="shape-fields shape-fields-circle" data-fields="circle">
+              <label class="check-row wide">
+                <input name="circleHasCore" type="checkbox" checked>
+                <span>中心を入れる</span>
+              </label>
+              <label>
+                中心に置きたいもの
+                <input name="circleCore" type="text" placeholder="例：大事にしたい核">
+              </label>
+              <label>
+                内側 1
+                <input name="circleInner1" type="text" placeholder="例：自分の記憶">
+              </label>
+              <label>
+                内側 2
+                <input name="circleInner2" type="text" placeholder="例：好きの理由">
+              </label>
+              <label>
+                内側 3
+                <input name="circleInner3" type="text" placeholder="例：残したい感覚">
+              </label>
+              <label>
+                外側 1
+                <input name="circleOuter1" type="text" placeholder="例：SNS">
+              </label>
+              <label>
+                外側 2
+                <input name="circleOuter2" type="text" placeholder="例：公式発表">
+              </label>
+              <label>
+                外側 3
+                <input name="circleOuter3" type="text" placeholder="例：世間">
+              </label>
+            </div>
+
+            <div class="shape-fields shape-fields-venn" data-fields="venn">
+              <p class="shape-field-note wide">同じところと、違うところを置いてみる。重ならない部分も、まちがいではありません。</p>
+              <label>
+                左の円のラベル
+                <input name="vennLeftLabel" type="text" value="自分">
+              </label>
+              <label>
+                右の円のラベル
+                <input name="vennRightLabel" type="text" placeholder="例：他のファン、公式、過去の自分">
+              </label>
+              <label>
+                左だけ 1
+                <input name="vennLeftOnly1" type="text" placeholder="例：自分だけが大事にしていること">
+              </label>
+              <label>
+                左だけ 2
+                <input name="vennLeftOnly2" type="text" placeholder="例：自分の記憶">
+              </label>
+              <label>
+                左だけ 3
+                <input name="vennLeftOnly3" type="text" placeholder="例：残しておきたい感覚">
+              </label>
+              <label>
+                重なり 1
+                <input name="vennOverlap1" type="text" placeholder="例：どちらも大事にしていること">
+              </label>
+              <label>
+                重なり 2
+                <input name="vennOverlap2" type="text" placeholder="例：共有している好き">
+              </label>
+              <label>
+                重なり 3
+                <input name="vennOverlap3" type="text" placeholder="例：同じ作品への思い">
+              </label>
+              <label>
+                右だけ 1
+                <input name="vennRightOnly1" type="text" placeholder="例：相手側が大事にしていそうなこと">
+              </label>
+              <label>
+                右だけ 2
+                <input name="vennRightOnly2" type="text" placeholder="例：公式発表">
+              </label>
+              <label>
+                右だけ 3
+                <input name="vennRightOnly3" type="text" placeholder="例：周囲の見方">
+              </label>
+              <label>
+                外側の領域
+                <input name="vennOutside" type="text" placeholder="例：世間の反応、SNSの空気">
+              </label>
+              <label>
+                左の円の大きさ
+                <input name="vennLeftSize" type="range" min="70" max="112" value="92">
+              </label>
+              <label>
+                右の円の大きさ
+                <input name="vennRightSize" type="range" min="70" max="112" value="92">
+              </label>
+              <label class="wide">
+                重なりの大きさ
+                <input name="vennOverlapAmount" type="range" min="18" max="82" value="52">
+              </label>
+            </div>
+
+            <label class="wide">
+              短いメモ
+              <textarea name="memo" rows="4" placeholder="このかたちを見て、あとから思い出せそうなこと。"></textarea>
+            </label>
+
+            <label class="check-row wide">
+              <input name="placeInLandscape" type="checkbox">
+              <span>このかたちを風景に置きますか。</span>
+            </label>
+
+            <button class="primary-button wide" type="submit">かたちを保存する</button>
+            <p class="form-note wide" id="shape-status" aria-live="polite"></p>
+          </form>
+
+          <div class="worktable">
+            <aside class="atelier-question" id="atelier-question" aria-live="polite">
+              <p>今日の問い</p>
+              <span>今の関係を三角形にすると？</span>
+            </aside>
+            <div class="paper-preview" id="shape-preview" aria-label="図形プレビュー"></div>
+            <div class="shape-save-effect" id="shape-save-effect" aria-hidden="true"></div>
+            <div class="table-tools" aria-hidden="true">
+              <span class="tool-ruler"></span>
+              <span class="tool-compass"></span>
+              <span class="tool-thread"></span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="view view-gallery" id="gallery-view" aria-labelledby="gallery-title">
+        <header class="screen-header gallery-header">
+          <button class="quiet-button" type="button" data-view="home">← 風景へ戻る</button>
+          <div>
+            <p class="eyebrow">かたちの美術館</p>
+            <h2 id="gallery-title">保存したかたちの展示室</h2>
+          </div>
+        </header>
+        <div class="gallery-room" id="gallery-list" aria-live="polite"></div>
+      </section>
+
+      <section class="view view-settings" id="settings-view" aria-labelledby="settings-title">
+        <header class="screen-header settings-header">
+          <button class="quiet-button" type="button" data-view="home">← 風景へ戻る</button>
+          <div>
+            <p class="eyebrow">灯台</p>
+            <h2 id="settings-title">風景の向きと見え方を整える場所</h2>
+          </div>
+        </header>
+
+        <div class="settings-room">
+          <section class="settings-panel lighthouse-panel" aria-labelledby="settings-about-title">
+            <div class="panel-lighthouse" aria-hidden="true">
+              <span class="panel-light"></span>
+              <span class="panel-tower"></span>
+            </div>
+            <div>
+              <h3 id="settings-about-title">このアプリについて</h3>
+              <p>
+                推し活の中で流れてくる情報と、すぐには言葉にならない気持ちのあいだに、
+                日記・かたち・風景を置くための小さな試作です。
+              </p>
+            </div>
+          </section>
+
+          <section class="settings-panel" aria-labelledby="record-type-title">
+            <h3 id="record-type-title">記録タイプ</h3>
+            <dl class="type-guide">
+              <div>
+                <dt>内側の記録</dt>
+                <dd>自分の感情、記憶、価値観、何を大事にしたいか。</dd>
+              </div>
+              <div>
+                <dt>外側の記録</dt>
+                <dd>公式、SNS、世間、ファンコミュニティ、情報環境の観察。</dd>
+              </div>
+              <div>
+                <dt>両方の記録</dt>
+                <dd>外で起きたことと、自分の中で起きたことの両方。</dd>
+              </div>
+            </dl>
+          </section>
+
+          <section class="settings-panel wide-panel" aria-labelledby="placed-management-title">
+            <h3 id="placed-management-title">風景に置いたかたち</h3>
+            <p class="panel-note">大事なかたちだけを、風景に残しておけます。</p>
+            <div class="settings-placed-list" id="settings-placed-list" aria-live="polite"></div>
+          </section>
+
+          <section class="settings-panel reset-panel" aria-labelledby="reset-title">
+            <h3 id="reset-title">データリセット</h3>
+            <p>
+              このブラウザ内に保存した日記・かたち・風景の状態を消します。
+              発表前に試し書きを消したいときだけ使えます。
+            </p>
+            <button class="danger-button" id="reset-data-button" type="button">保存データをリセット</button>
+            <p class="form-note" id="reset-status" aria-live="polite"></p>
+          </section>
+        </div>
+      </section>
+
+      <section class="view view-strata" id="strata-view" aria-labelledby="strata-title">
+        <header class="screen-header strata-header">
+          <button class="quiet-button" type="button" data-view="home">← 風景へ戻る</button>
+          <div>
+            <p class="eyebrow">地層をたどる</p>
+            <h2 id="strata-title">記録がひとつずつ、時間の層になる。</h2>
+          </div>
+        </header>
+        <div class="strata-room" id="strata-list" aria-live="polite"></div>
+      </section>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>
