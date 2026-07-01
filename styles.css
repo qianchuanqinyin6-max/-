@@ -2010,7 +2010,15 @@ svg marker path {
   }
 
   .paper-preview {
-    min-height: 280px;
+    min-height: 260px;
+  }
+
+  .atelier-room .worktable {
+    order: -1;
+  }
+
+  .atelier-room .shape-form {
+    order: 1;
   }
 
   .gallery-room {
