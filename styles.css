@@ -299,59 +299,6 @@ h1 {
   background: #b8d4aa;
 }
 
-.placed-shapes {
-  position: absolute;
-  left: min(6vw, 72px);
-  right: min(6vw, 72px);
-  top: 12px;
-  z-index: 3;
-  display: flex;
-  align-items: end;
-  gap: 12px;
-  min-height: 92px;
-  pointer-events: none;
-}
-
-.placed-empty {
-  align-self: start;
-  margin: 0;
-  padding: 8px 10px;
-  border: 1px solid rgba(75, 94, 78, 0.16);
-  border-radius: 8px;
-  background: rgba(255, 253, 247, 0.58);
-  color: rgba(39, 50, 61, 0.68);
-  font-size: 0.84rem;
-}
-
-.placed-shape {
-  display: grid;
-  place-items: center;
-  gap: 2px;
-  width: 74px;
-  min-height: 70px;
-  padding: 4px;
-  border: 1px solid rgba(69, 86, 76, 0.22);
-  border-radius: 8px;
-  background: rgba(255, 253, 247, 0.74);
-  color: rgba(39, 50, 61, 0.74);
-  box-shadow: 0 10px 22px rgba(48, 69, 60, 0.12);
-  pointer-events: auto;
-}
-
-.placed-shape svg {
-  width: 100%;
-  height: 48px;
-}
-
-.placed-shape span {
-  max-width: 100%;
-  overflow: hidden;
-  font-size: 0.62rem;
-  line-height: 1.1;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
 .building-row {
   position: absolute;
   left: min(6vw, 72px);
@@ -1848,36 +1795,6 @@ svg marker path {
   margin: 0;
 }
 
-.settings-placed-list {
-  display: grid;
-  gap: 10px;
-}
-
-.settings-shape-item {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 12px;
-  align-items: center;
-  padding: 12px;
-  border: 1px solid rgba(62, 76, 80, 0.12);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.56);
-}
-
-.settings-shape-item h4,
-.settings-shape-item p {
-  margin: 0;
-}
-
-.settings-shape-item h4 {
-  font-size: 0.92rem;
-}
-
-.settings-shape-item p {
-  color: var(--muted);
-  font-size: 0.78rem;
-}
-
 .reset-panel {
   border-color: rgba(170, 92, 84, 0.24);
 }
@@ -2042,12 +1959,6 @@ svg marker path {
     bottom: 224px;
   }
 
-  .placed-shapes {
-    left: 18px;
-    right: 18px;
-    top: 8px;
-  }
-
   .library-room,
   .atelier-room,
   .settings-room {
@@ -2168,8 +2079,7 @@ svg marker path {
   }
 
   .settings-room,
-  .lighthouse-panel,
-  .settings-shape-item {
+  .lighthouse-panel {
     grid-template-columns: 1fr;
   }
 

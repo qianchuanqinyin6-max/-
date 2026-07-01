@@ -36,7 +36,6 @@ const homeWeatherForm = document.querySelector("#home-weather-form");
 const homeWeatherSelect = document.querySelector("#home-weather-select");
 const starField = document.querySelector("#star-field");
 const layerStack = document.querySelector("#home-layer-stack");
-const placedShapes = document.querySelector("#placed-shapes");
 const creatureMessage = document.querySelector("#creature-message");
 const diaryForm = document.querySelector("#diary-form");
 const diaryStatus = document.querySelector("#diary-status");
@@ -69,7 +68,6 @@ const shapeSheetApply = document.querySelector("#shape-sheet-apply");
 const shapeSheetClose = document.querySelector("#shape-sheet-close");
 const galleryList = document.querySelector("#gallery-list");
 const strataList = document.querySelector("#strata-list");
-const settingsPlacedList = document.querySelector("#settings-placed-list");
 const resetDataButton = document.querySelector("#reset-data-button");
 const resetStatus = document.querySelector("#reset-status");
 const shapeTabs = document.querySelectorAll(".shape-tab");
@@ -270,8 +268,6 @@ function bindShapeForm() {
       kind,
       title: getFormText(formData, "title") || "名前のないかたち",
       memo: getFormText(formData, "memo"),
-      placeInLandscape: formData.get("placeInLandscape") === "on",
-      placedInLandscape: formData.get("placeInLandscape") === "on",
       createdAt: existingShape?.createdAt || new Date().toISOString(),
       updatedAt: existingShape ? new Date().toISOString() : "",
     };
@@ -310,11 +306,7 @@ function bindShapeForm() {
     updateShapePreview();
     playShapeSaveEffect();
 
-    const message = existingShape
-      ? "かたちを更新しました。"
-      : shape.placeInLandscape
-        ? "かたちを保存して、風景に置きました。"
-        : "かたちを保存しました。";
+    const message = existingShape ? "かたちを更新しました。" : "かたちを保存しました。";
     showMessage(shapeStatus, message);
   });
 }
@@ -512,11 +504,6 @@ function getShapeSheetConfig(part) {
       description: "図形の中に入れきれない長い補足を置けます。",
       fields: [sheetField("memo", "フリーメモ", { type: "textarea", rows: 6 })],
     },
-    landscape: {
-      title: "風景に置く",
-      description: "このかたちをホームの風景にも置くか選べます。",
-      fields: [sheetField("placeInLandscape", "このかたちを風景に置く", { type: "checkbox" })],
-    },
     adjust: {
       title: "調整",
       description: "この図形は固定の形で表示しています。編集したい場所を図形上でタップしてください。",
@@ -657,7 +644,6 @@ function multiFieldConfig(title, description, fields) {
 function renderAll() {
   renderHome();
   renderGallery();
-  renderSettings();
   renderStrata();
 }
 
@@ -673,7 +659,6 @@ function renderHome() {
   }
   renderStars();
   renderHomeLayers();
-  renderPlacedShapes();
   renderCreatureMessage();
 }
 
@@ -716,39 +701,8 @@ function renderHomeLayers() {
   });
 }
 
-function renderPlacedShapes() {
-  placedShapes.innerHTML = "";
-  const placed = state.shapes.filter((shape) => isShapePlaced(shape));
-
-  if (placed.length === 0) {
-    const empty = document.createElement("span");
-    empty.className = "placed-empty";
-    empty.textContent = "今日はまだ、かたちは置かれていません。";
-    placedShapes.append(empty);
-    return;
-  }
-
-  placed.slice(0, 5).forEach((shape, index) => {
-    const item = document.createElement("button");
-    const position = seededPosition(shape.id, index + 3);
-    item.type = "button";
-    item.className = "placed-shape";
-    item.title = shape.title;
-    item.setAttribute("aria-label", `${shape.title}を美術館で見る`);
-    item.style.left = `${position.left}%`;
-    item.style.top = `${18 + ((position.top + index * 9) % 45)}%`;
-    item.innerHTML = `
-      ${renderShapeSvg(shape, "mini")}
-      <span>${escapeHtml(shortText(shape.title, "かたち", 8))}</span>
-    `;
-    item.addEventListener("click", () => showView("gallery"));
-    placedShapes.append(item);
-  });
-}
-
 function renderCreatureMessage() {
   const importantCount = state.diaries.filter((diary) => diary.important).length;
-  const placedCount = state.shapes.filter((shape) => isShapePlaced(shape)).length;
   const latestDiary = state.diaries[0];
 
   if (state.diaries.length === 0) {
@@ -761,8 +715,6 @@ function renderCreatureMessage() {
     creatureMessage.textContent = "見えにくい日も、置いたものは残っています。";
   } else if (state.weather === "night" && importantCount > 0) {
     creatureMessage.textContent = "星は、少し小さくても見えています。";
-  } else if (placedCount > 0) {
-    creatureMessage.textContent = "置いたかたちは、ここで静かに息をしています。";
   } else if (state.diaries.length >= 3) {
     creatureMessage.textContent = "地層が少しずつ、あなたの速さを覚えています。";
   } else {
@@ -788,12 +740,9 @@ function renderGallery() {
         <h3>${escapeHtml(shape.title)}</h3>
         <p class="caption-note">${escapeHtml(shape.memo ? excerpt(shape.memo) : "短いメモはありません。")}</p>
         ${renderGalleryCaptionExtra(shape)}
-        <span>${isShapePlaced(shape) ? "風景にも置いています" : "美術館に静かに保存中"}</span>
+        <span>美術館に静かに保存中</span>
       </div>
       <div class="card-actions">
-        <button class="quiet-button toggle-place" type="button" data-shape-id="${escapeHtml(shape.id)}">
-          ${isShapePlaced(shape) ? "風景から下ろす" : "風景に置く"}
-        </button>
         <button class="quiet-button edit-shape" type="button" data-shape-id="${escapeHtml(shape.id)}">編集</button>
         <button class="quiet-button delete-action delete-shape" type="button" data-shape-id="${escapeHtml(shape.id)}">削除</button>
       </div>
@@ -801,41 +750,11 @@ function renderGallery() {
     galleryList.append(card);
   });
 
-  galleryList.querySelectorAll(".toggle-place").forEach((button) => {
-    button.addEventListener("click", () => toggleShapePlacement(button.dataset.shapeId));
-  });
   galleryList.querySelectorAll(".edit-shape").forEach((button) => {
     button.addEventListener("click", () => startEditShape(button.dataset.shapeId));
   });
   galleryList.querySelectorAll(".delete-shape").forEach((button) => {
     button.addEventListener("click", () => deleteShape(button.dataset.shapeId));
-  });
-}
-
-function renderSettings() {
-  settingsPlacedList.innerHTML = "";
-  const placed = state.shapes.filter((shape) => isShapePlaced(shape));
-
-  if (placed.length === 0) {
-    settingsPlacedList.append(createEmptyState("風景に置いているかたちはありません。"));
-    return;
-  }
-
-  placed.forEach((shape) => {
-    const item = document.createElement("article");
-    item.className = "settings-shape-item";
-    item.innerHTML = `
-      <div>
-        <h4>${escapeHtml(shape.title)}</h4>
-        <p>${escapeHtml(labels.shape[getShapeKind(shape)] || getShapeKind(shape))} / ${escapeHtml(shape.memo || "短いメモはありません。")}</p>
-      </div>
-      <button class="quiet-button settings-toggle-place" type="button" data-shape-id="${escapeHtml(shape.id)}">風景から下ろす</button>
-    `;
-    settingsPlacedList.append(item);
-  });
-
-  settingsPlacedList.querySelectorAll(".settings-toggle-place").forEach((button) => {
-    button.addEventListener("click", () => toggleShapePlacement(button.dataset.shapeId));
   });
 }
 
@@ -944,7 +863,6 @@ function startEditShape(shapeId) {
   selectShapeKind(kind);
   shapeForm.querySelector('[name="title"]').value = shape.title || "";
   shapeForm.querySelector('[name="memo"]').value = shape.memo || "";
-  shapeForm.querySelector('[name="placeInLandscape"]').checked = isShapePlaced(shape);
 
   if (kind === "circle") {
     const circle = normalizeCircle(shape.circle);
@@ -1002,7 +920,7 @@ function deleteShape(shapeId) {
     return;
   }
 
-  const ok = window.confirm("このかたちを削除しますか。美術館と風景から消えます。");
+  const ok = window.confirm("このかたちを削除しますか。美術館から消えます。");
   if (!ok) {
     return;
   }
@@ -1015,18 +933,6 @@ function deleteShape(shapeId) {
     selectShapeKind("triangle");
     updateShapePreview();
   }
-  saveState();
-  renderAll();
-}
-
-function toggleShapePlacement(shapeId) {
-  const shape = state.shapes.find((item) => item.id === shapeId);
-  if (!shape) {
-    return;
-  }
-  const nextPlaced = !isShapePlaced(shape);
-  shape.placeInLandscape = nextPlaced;
-  shape.placedInLandscape = nextPlaced;
   saveState();
   renderAll();
 }
@@ -1534,9 +1440,6 @@ function normalizeCircle(circle = {}) {
   };
 }
 
-function isShapePlaced(shape) {
-  return Boolean(shape.placeInLandscape || shape.placedInLandscape);
-}
 
 function getShapeKind(shape) {
   return shape.kind || shape.type || "triangle";

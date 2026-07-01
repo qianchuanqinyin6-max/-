@@ -42,8 +42,6 @@
           </div>
 
           <div class="land" aria-label="自分の風景">
-            <div class="placed-shapes" id="placed-shapes"></div>
-
             <div class="building-row" aria-label="風景の入口">
               <button class="building building-library" type="button" data-view="library" aria-label="記録の図書館を開く">
                 <span class="building-roof"></span>
@@ -397,16 +395,10 @@
               <textarea name="memo" rows="4" placeholder="このかたちを見て、あとから思い出せそうなこと。"></textarea>
             </label>
 
-            <label class="check-row wide">
-              <input name="placeInLandscape" type="checkbox">
-              <span>このかたちを風景に置きますか。</span>
-            </label>
-
             <div class="mobile-shape-actions wide" aria-label="スマホ用の編集操作">
               <button class="quiet-button" type="button" data-mobile-edit="title">タイトル</button>
               <button class="quiet-button" type="button" data-mobile-edit="memo">フリーメモ</button>
               <button class="quiet-button" type="button" data-mobile-edit="adjust">調整</button>
-              <button class="quiet-button" type="button" data-mobile-edit="landscape">風景に置く</button>
             </div>
 
             <button class="primary-button wide" type="submit">かたちを保存する</button>
@@ -492,12 +484,6 @@
                 <dd>外で起きたことと、自分の中で起きたことの両方。</dd>
               </div>
             </dl>
-          </section>
-
-          <section class="settings-panel wide-panel" aria-labelledby="placed-management-title">
-            <h3 id="placed-management-title">風景に置いたかたち</h3>
-            <p class="panel-note">大事なかたちだけを、風景に残しておけます。</p>
-            <div class="settings-placed-list" id="settings-placed-list" aria-live="polite"></div>
           </section>
 
           <section class="settings-panel reset-panel" aria-labelledby="reset-title">
