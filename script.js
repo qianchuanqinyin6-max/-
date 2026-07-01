@@ -60,6 +60,13 @@ const shapeKindInput = document.querySelector("#shape-kind");
 const shapePreview = document.querySelector("#shape-preview");
 const atelierQuestion = document.querySelector("#atelier-question");
 const shapeSaveEffect = document.querySelector("#shape-save-effect");
+const shapeSheet = document.querySelector("#shape-edit-sheet");
+const shapeSheetBackdrop = document.querySelector("#shape-sheet-backdrop");
+const shapeSheetTitle = document.querySelector("#shape-sheet-title");
+const shapeSheetDescription = document.querySelector("#shape-sheet-description");
+const shapeSheetFields = document.querySelector("#shape-sheet-fields");
+const shapeSheetApply = document.querySelector("#shape-sheet-apply");
+const shapeSheetClose = document.querySelector("#shape-sheet-close");
 const galleryList = document.querySelector("#gallery-list");
 const strataList = document.querySelector("#strata-list");
 const settingsPlacedList = document.querySelector("#settings-placed-list");
@@ -91,6 +98,7 @@ const atelierQuestions = {
 let state = loadState();
 let editingDiaryId = null;
 let editingShapeId = null;
+let activeShapeSheetConfig = null;
 
 bindNavigation();
 bindDiaryForm();
@@ -99,6 +107,7 @@ bindQuickWeatherForm();
 bindFreeMemoForm();
 bindShapeForm();
 bindShapeTabs();
+bindShapeSheet();
 bindSettingsControls();
 renderAll();
 updateShapePreview();
@@ -279,6 +288,7 @@ function bindShapeForm() {
         hasCore: formData.get("circleHasCore") === "on",
         core: getFormText(formData, "circleCore"),
         inner: getTextList(formData, ["circleInner1", "circleInner2", "circleInner3"]),
+        boundary: getTextList(formData, ["circleBoundary1", "circleBoundary2", "circleBoundary3"]),
         outer: getTextList(formData, ["circleOuter1", "circleOuter2", "circleOuter3"]),
       };
     } else if (kind === "venn") {
@@ -314,8 +324,43 @@ function bindShapeTabs() {
     tab.addEventListener("click", () => {
       selectShapeKind(tab.dataset.shapeKind);
       updateShapePreview();
+      closeShapeSheet();
     });
   });
+}
+
+function bindShapeSheet() {
+  shapePreview.addEventListener("click", (event) => {
+    const target = event.target.closest("[data-shape-edit]");
+    if (!target) {
+      return;
+    }
+    openShapeSheet(target.dataset.shapeEdit);
+  });
+
+  shapePreview.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter" && event.key !== " ") {
+      return;
+    }
+    const target = event.target.closest("[data-shape-edit]");
+    if (!target) {
+      return;
+    }
+    event.preventDefault();
+    openShapeSheet(target.dataset.shapeEdit);
+  });
+
+  shapeForm.querySelectorAll("[data-mobile-edit]").forEach((button) => {
+    button.addEventListener("click", () => {
+      openShapeSheet(button.dataset.mobileEdit);
+    });
+  });
+
+  shapeSheetApply.addEventListener("click", applyShapeSheet);
+  shapeSheetClose.addEventListener("click", closeShapeSheet);
+  shapeSheetBackdrop.addEventListener("click", closeShapeSheet);
+  shapeSheetFields.addEventListener("input", syncShapeSheetFields);
+  shapeSheetFields.addEventListener("change", syncShapeSheetFields);
 }
 
 function selectShapeKind(kind) {
@@ -356,6 +401,257 @@ function bindSettingsControls() {
     updateShapePreview();
     showMessage(resetStatus, "保存データをリセットしました。");
   });
+}
+
+function openShapeSheet(part) {
+  const config = getShapeSheetConfig(part);
+  if (!config) {
+    return;
+  }
+
+  activeShapeSheetConfig = config;
+  shapeSheetTitle.textContent = config.title;
+  shapeSheetDescription.textContent = config.description;
+  shapeSheetFields.innerHTML = config.fields.map(renderShapeSheetField).join("");
+  shapeSheet.hidden = false;
+  shapeSheetBackdrop.hidden = false;
+  document.body.classList.add("sheet-open");
+
+  const firstInput = shapeSheetFields.querySelector("input, textarea");
+  if (firstInput) {
+    window.setTimeout(() => firstInput.focus(), 80);
+  }
+}
+
+function closeShapeSheet() {
+  activeShapeSheetConfig = null;
+  shapeSheet.hidden = true;
+  shapeSheetBackdrop.hidden = true;
+  shapeSheetFields.innerHTML = "";
+  document.body.classList.remove("sheet-open");
+}
+
+function applyShapeSheet() {
+  syncShapeSheetFields();
+  closeShapeSheet();
+}
+
+function syncShapeSheetFields() {
+  if (!activeShapeSheetConfig) {
+    return;
+  }
+
+  activeShapeSheetConfig.fields.forEach((field) => {
+    const sheetInput = shapeSheetFields.querySelector(`[name="${field.sheetName}"]`);
+    const formInput = shapeForm.querySelector(`[name="${field.name}"]`);
+    if (!sheetInput || !formInput) {
+      return;
+    }
+
+    if (formInput.type === "checkbox") {
+      formInput.checked = sheetInput.checked;
+    } else {
+      formInput.value = sheetInput.value;
+    }
+    formInput.dispatchEvent(new Event("input", { bubbles: true }));
+    formInput.dispatchEvent(new Event("change", { bubbles: true }));
+  });
+
+  updateShapePreview();
+}
+
+function renderShapeSheetField(field) {
+  const formInput = shapeForm.querySelector(`[name="${field.name}"]`);
+  const value = formInput?.type === "checkbox" ? Boolean(formInput.checked) : formInput?.value || "";
+
+  if (field.type === "textarea") {
+    return `
+      <label>
+        ${escapeHtml(field.label)}
+        <textarea name="${field.sheetName}" rows="${field.rows || 5}" placeholder="${escapeHtml(field.placeholder || "")}">${escapeHtml(value)}</textarea>
+      </label>
+    `;
+  }
+
+  if (field.type === "checkbox") {
+    return `
+      <label class="check-row">
+        <input name="${field.sheetName}" type="checkbox" ${value ? "checked" : ""}>
+        <span>${escapeHtml(field.label)}</span>
+      </label>
+    `;
+  }
+
+  if (field.type === "range") {
+    return `
+      <label>
+        ${escapeHtml(field.label)}
+        <input name="${field.sheetName}" type="range" min="${field.min}" max="${field.max}" value="${escapeHtml(value || field.value || "")}">
+      </label>
+    `;
+  }
+
+  return `
+    <label>
+      ${escapeHtml(field.label)}
+      <input name="${field.sheetName}" type="text" value="${escapeHtml(value)}" placeholder="${escapeHtml(field.placeholder || "")}" maxlength="${field.maxLength || 40}">
+    </label>
+  `;
+}
+
+function getShapeSheetConfig(part) {
+  const kind = shapeKindInput.value || "triangle";
+  const configs = {
+    title: {
+      title: "図形タイトル",
+      description: "このかたちをあとから見つけやすい短い名前にします。",
+      fields: [sheetField("title", "図形タイトル", { placeholder: "例：自分・推し・公式の距離" })],
+    },
+    memo: {
+      title: "フリーメモ",
+      description: "図形の中に入れきれない長い補足を置けます。",
+      fields: [sheetField("memo", "フリーメモ", { type: "textarea", rows: 6 })],
+    },
+    landscape: {
+      title: "風景に置く",
+      description: "このかたちをホームの風景にも置くか選べます。",
+      fields: [sheetField("placeInLandscape", "このかたちを風景に置く", { type: "checkbox" })],
+    },
+    adjust: {
+      title: "調整",
+      description: "この図形は固定の形で表示しています。編集したい場所を図形上でタップしてください。",
+      fields: [],
+    },
+  };
+
+  if (kind === "triangle") {
+    Object.assign(configs, {
+      pointA: trianglePointConfig("頂点A", "pointA"),
+      pointB: trianglePointConfig("頂点B", "pointB"),
+      pointC: trianglePointConfig("頂点C", "pointC"),
+      sideAB: triangleSideConfig("辺AB", "AとBのあいだにある関係を短く置きます。", "arrowAB", "A → B", "arrowBA", "B → A"),
+      sideBC: triangleSideConfig("辺BC", "BとCのあいだにある関係を短く置きます。", "arrowBC", "B → C", "arrowCB", "C → B"),
+      sideCA: triangleSideConfig("辺CA", "CとAのあいだにある関係を短く置きます。", "arrowCA", "C → A", "arrowAC", "A → C"),
+      center: configs.memo,
+    });
+  } else if (kind === "circle") {
+    Object.assign(configs, {
+      center: {
+        title: "中心",
+        description: "核にあるものを短い言葉で置きます。",
+        fields: [
+          sheetField("circleHasCore", "中心を入れる", { type: "checkbox" }),
+          sheetField("circleCore", "中心に置きたいもの", { placeholder: "例：大事にしたい核" }),
+        ],
+      },
+      inner: multiFieldConfig("内側", "内側に置きたいものを、3つまで短く置けます。", [
+        ["circleInner1", "内側 1"],
+        ["circleInner2", "内側 2"],
+        ["circleInner3", "内側 3"],
+      ]),
+      boundary: multiFieldConfig("境界", "境目に近いものがあれば、短い言葉で置けます。", [
+        ["circleBoundary1", "境界 1"],
+        ["circleBoundary2", "境界 2"],
+        ["circleBoundary3", "境界 3"],
+      ]),
+      outer: multiFieldConfig("外側", "外側にあるものを、3つまで短く置けます。", [
+        ["circleOuter1", "外側 1"],
+        ["circleOuter2", "外側 2"],
+        ["circleOuter3", "外側 3"],
+      ]),
+      adjust: {
+        title: "調整",
+        description: "円は現在、固定の大きさで表示しています。中心の有無だけ調整できます。",
+        fields: [sheetField("circleHasCore", "中心を入れる", { type: "checkbox" })],
+      },
+    });
+  } else if (kind === "venn") {
+    Object.assign(configs, {
+      leftLabel: {
+        title: "左円ラベル",
+        description: "左の円が表しているものを短く書きます。",
+        fields: [sheetField("vennLeftLabel", "左の円のラベル", { placeholder: "例：自分" })],
+      },
+      rightLabel: {
+        title: "右円ラベル",
+        description: "右の円が表しているものを短く書きます。",
+        fields: [sheetField("vennRightLabel", "右の円のラベル", { placeholder: "例：公式、他のファン" })],
+      },
+      leftOnly: multiFieldConfig("左だけの領域", "左の円にだけ入るものを、3つまで短く置けます。", [
+        ["vennLeftOnly1", "左だけ 1"],
+        ["vennLeftOnly2", "左だけ 2"],
+        ["vennLeftOnly3", "左だけ 3"],
+      ]),
+      overlap: multiFieldConfig("重なり部分", "両方に共通しているものを置いてください。", [
+        ["vennOverlap1", "重なり 1"],
+        ["vennOverlap2", "重なり 2"],
+        ["vennOverlap3", "重なり 3"],
+      ]),
+      rightOnly: multiFieldConfig("右だけの領域", "右の円にだけ入るものを、3つまで短く置けます。", [
+        ["vennRightOnly1", "右だけ 1"],
+        ["vennRightOnly2", "右だけ 2"],
+        ["vennRightOnly3", "右だけ 3"],
+      ]),
+      outside: {
+        title: "外側",
+        description: "どちらにも入らないけれど、周囲にあるものを置けます。",
+        fields: [sheetField("vennOutside", "外側の領域", { placeholder: "例：SNSの空気、世間の反応" })],
+      },
+      adjust: {
+        title: "調整",
+        description: "円の大きさと重なり具合を調整できます。",
+        fields: [
+          sheetField("vennLeftSize", "左の円の大きさ", { type: "range", min: 70, max: 112, value: 92 }),
+          sheetField("vennRightSize", "右の円の大きさ", { type: "range", min: 70, max: 112, value: 92 }),
+          sheetField("vennOverlapAmount", "重なりの大きさ", { type: "range", min: 18, max: 82, value: 52 }),
+        ],
+      },
+    });
+  }
+
+  return configs[part] || null;
+}
+
+function sheetField(name, label, options = {}) {
+  return {
+    name,
+    label,
+    sheetName: `sheet-${name}`,
+    type: options.type || "text",
+    placeholder: options.placeholder || "",
+    rows: options.rows,
+    min: options.min,
+    max: options.max,
+    value: options.value,
+    maxLength: options.maxLength,
+  };
+}
+
+function trianglePointConfig(title, name) {
+  return {
+    title,
+    description: "頂点のラベルを短く編集します。",
+    fields: [sheetField(name, `${title}のラベル`)],
+  };
+}
+
+function triangleSideConfig(title, description, firstName, firstLabel, secondName, secondLabel) {
+  return {
+    title,
+    description,
+    fields: [
+      sheetField(firstName, firstLabel, { placeholder: "短い関係メモ" }),
+      sheetField(secondName, secondLabel, { placeholder: "短い関係メモ" }),
+    ],
+  };
+}
+
+function multiFieldConfig(title, description, fields) {
+  return {
+    title,
+    description,
+    fields: fields.map(([name, label]) => sheetField(name, label, { placeholder: "短い言葉" })),
+  };
 }
 
 function renderAll() {
@@ -657,6 +953,9 @@ function startEditShape(shapeId) {
     ["circleInner1", "circleInner2", "circleInner3"].forEach((name, index) => {
       shapeForm.querySelector(`[name="${name}"]`).value = circle.inner[index] || "";
     });
+    ["circleBoundary1", "circleBoundary2", "circleBoundary3"].forEach((name, index) => {
+      shapeForm.querySelector(`[name="${name}"]`).value = circle.boundary[index] || "";
+    });
     ["circleOuter1", "circleOuter2", "circleOuter3"].forEach((name, index) => {
       shapeForm.querySelector(`[name="${name}"]`).value = circle.outer[index] || "";
     });
@@ -755,12 +1054,13 @@ function updateShapePreview() {
     };
     shape.arrows = getTriangleArrows(formData);
   } else if (kind === "circle") {
-    shape.circle = {
-      hasCore: formData.get("circleHasCore") === "on",
-      core: getFormText(formData, "circleCore"),
-      inner: getTextList(formData, ["circleInner1", "circleInner2", "circleInner3"]),
-      outer: getTextList(formData, ["circleOuter1", "circleOuter2", "circleOuter3"]),
-    };
+      shape.circle = {
+        hasCore: formData.get("circleHasCore") === "on",
+        core: getFormText(formData, "circleCore"),
+        inner: getTextList(formData, ["circleInner1", "circleInner2", "circleInner3"]),
+        boundary: getTextList(formData, ["circleBoundary1", "circleBoundary2", "circleBoundary3"]),
+        outer: getTextList(formData, ["circleOuter1", "circleOuter2", "circleOuter3"]),
+      };
   } else if (kind === "venn") {
     Object.assign(shape, getVennFields(formData));
   }
@@ -856,6 +1156,15 @@ function renderTriangleSvg(shape, size) {
       <circle class="shape-point" cx="150" cy="34" r="6"></circle>
       <circle class="shape-point" cx="54" cy="178" r="6"></circle>
       <circle class="shape-point" cx="246" cy="178" r="6"></circle>
+      ${!size || size !== "mini" ? `
+        <path class="shape-hotspot" data-shape-edit="sideAB" tabindex="0" aria-label="辺ABを編集" d="M62 166 L140 50"></path>
+        <path class="shape-hotspot" data-shape-edit="sideBC" tabindex="0" aria-label="辺BCを編集" d="M160 50 L238 166"></path>
+        <path class="shape-hotspot" data-shape-edit="sideCA" tabindex="0" aria-label="辺CAを編集" d="M70 178 L230 178"></path>
+        <circle class="shape-hotspot" data-shape-edit="pointB" tabindex="0" aria-label="頂点Bを編集" cx="150" cy="34" r="24"></circle>
+        <circle class="shape-hotspot" data-shape-edit="pointA" tabindex="0" aria-label="頂点Aを編集" cx="54" cy="178" r="24"></circle>
+        <circle class="shape-hotspot" data-shape-edit="pointC" tabindex="0" aria-label="頂点Cを編集" cx="246" cy="178" r="24"></circle>
+        <circle class="shape-hotspot" data-shape-edit="center" tabindex="0" aria-label="全体メモを編集" cx="150" cy="130" r="34"></circle>
+      ` : ""}
       ${arrowTexts}
       ${titleSize ? `<text class="shape-title" x="150" y="228" text-anchor="middle" font-size="${titleSize}">${title}</text>` : ""}
       <text x="150" y="23" text-anchor="middle" font-size="${labelSize}">${escapeHtml(shortText(points.b, "推し", 10))}</text>
@@ -886,6 +1195,11 @@ function renderCircleSvg(shape, size) {
     [150, 24],
     [56, 196],
     [244, 196],
+  ];
+  const boundaryCoords = [
+    [150, 176],
+    [78, 92],
+    [222, 92],
   ];
   const innerTexts = circle.inner
     .slice(0, textLimit)
@@ -919,6 +1233,22 @@ function renderCircleSvg(shape, size) {
       });
     })
     .join("");
+  const boundaryTexts = circle.boundary
+    .slice(0, textLimit)
+    .map((text, index) => {
+      const [x, y] = boundaryCoords[index];
+      return renderSvgMultilineText({
+        x,
+        y,
+        text,
+        fallback: `境界${index + 1}`,
+        maxCharsPerLine: 5,
+        maxLines: 2,
+        fontSize: labelSize,
+        className: "circle-label circle-boundary-label",
+      });
+    })
+    .join("");
   const core = circle.hasCore
     ? `
       <circle class="shape-core" cx="150" cy="116" r="26"></circle>
@@ -943,7 +1273,14 @@ function renderCircleSvg(shape, size) {
       <circle class="shape-ring dashed" cx="150" cy="116" r="58"></circle>
       ${core}
       ${innerTexts}
+      ${boundaryTexts}
       ${outerTexts}
+      ${size !== "mini" ? `
+        <rect class="shape-hotspot" data-shape-edit="outer" tabindex="0" aria-label="外側を編集" x="0" y="0" width="300" height="240" rx="16"></rect>
+        <circle class="shape-hotspot boundary-hotspot" data-shape-edit="boundary" tabindex="0" aria-label="境界を編集" cx="150" cy="116" r="92"></circle>
+        <circle class="shape-hotspot" data-shape-edit="inner" tabindex="0" aria-label="内側を編集" cx="150" cy="116" r="60"></circle>
+        <circle class="shape-hotspot" data-shape-edit="center" tabindex="0" aria-label="中心を編集" cx="150" cy="116" r="34"></circle>
+      ` : ""}
       ${titleSize ? `<text class="shape-title" x="150" y="228" text-anchor="middle" font-size="${titleSize}">${title}</text>` : ""}
     </svg>
   `;
@@ -986,6 +1323,12 @@ function renderVennSvg(shape, size) {
       ${renderVennRegionTexts(venn.overlapTexts, 160, cy, "重なり", "venn-region-text venn-overlap-text", 5)}
       ${renderVennRegionTexts(venn.rightOnlyTexts, rightCx + rightRadius * 0.34, cy, "右だけ", "venn-region-text", 7)}
       <text class="venn-outside-text" x="160" y="198" text-anchor="middle" font-size="${regionSize}">${escapeHtml(outerText)}</text>
+      <rect class="shape-hotspot" data-shape-edit="outside" tabindex="0" aria-label="外側を編集" x="0" y="0" width="320" height="250" rx="18"></rect>
+      <circle class="shape-hotspot" data-shape-edit="leftOnly" tabindex="0" aria-label="左だけの領域を編集" cx="${leftCx - leftRadius * 0.28}" cy="${cy}" r="${leftRadius * 0.48}"></circle>
+      <circle class="shape-hotspot" data-shape-edit="rightOnly" tabindex="0" aria-label="右だけの領域を編集" cx="${rightCx + rightRadius * 0.28}" cy="${cy}" r="${rightRadius * 0.48}"></circle>
+      <ellipse class="shape-hotspot" data-shape-edit="overlap" tabindex="0" aria-label="重なり部分を編集" cx="160" cy="${cy}" rx="36" ry="64"></ellipse>
+      <rect class="shape-hotspot" data-shape-edit="leftLabel" tabindex="0" aria-label="左円ラベルを編集" x="${leftCx - 45}" y="${Math.max(8, cy - leftRadius - 30)}" width="90" height="32" rx="12"></rect>
+      <rect class="shape-hotspot" data-shape-edit="rightLabel" tabindex="0" aria-label="右円ラベルを編集" x="${rightCx - 45}" y="${Math.max(8, cy - rightRadius - 30)}" width="90" height="32" rx="12"></rect>
       ${titleSize ? `<text class="shape-title" x="160" y="235" text-anchor="middle" font-size="${titleSize}">${title}</text>` : ""}
     </svg>
   `;
@@ -1176,14 +1519,17 @@ function normalizeTextList(value, fallback = "") {
 
 function normalizeCircle(circle = {}) {
   const legacyInner = typeof circle.inner === "string" ? [circle.inner] : circle.inner;
+  const legacyBoundary = typeof circle.boundary === "string" ? [circle.boundary] : circle.boundary;
   const legacyOuter = typeof circle.outer === "string" ? [circle.outer] : circle.outer;
   const inner = Array.isArray(legacyInner) ? legacyInner.filter(Boolean).slice(0, 3) : [];
+  const boundary = Array.isArray(legacyBoundary) ? legacyBoundary.filter(Boolean).slice(0, 3) : [];
   const outer = Array.isArray(legacyOuter) ? legacyOuter.filter(Boolean).slice(0, 3) : [];
   const hasCore = circle.hasCore === undefined ? Boolean(circle.core) : Boolean(circle.hasCore);
   return {
     hasCore,
     core: circle.core || "",
     inner: inner.length > 0 ? inner : ["内側"],
+    boundary,
     outer: outer.length > 0 ? outer : ["外側"],
   };
 }

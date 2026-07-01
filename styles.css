@@ -1255,6 +1255,10 @@ textarea:focus {
   color: #fffdf7;
 }
 
+.mobile-shape-actions {
+  display: none;
+}
+
 .shape-fields {
   display: none;
   grid-column: 1 / -1;
@@ -1399,6 +1403,91 @@ input[type="range"] {
   overflow: visible;
 }
 
+.paper-preview svg text {
+  pointer-events: none;
+}
+
+.shape-hotspot {
+  fill: transparent;
+  stroke: transparent;
+  stroke-width: 28px;
+  cursor: pointer;
+  pointer-events: none;
+}
+
+.boundary-hotspot {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 34px;
+}
+
+.shape-hotspot:focus-visible {
+  outline: none;
+  stroke: rgba(0, 114, 178, 0.22);
+}
+
+.shape-sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgba(39, 50, 61, 0.18);
+}
+
+.shape-edit-sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 70;
+  display: grid;
+  gap: 12px;
+  max-height: min(70vh, 560px);
+  padding: 12px 18px calc(18px + env(safe-area-inset-bottom));
+  border-radius: 18px 18px 0 0;
+  background: rgba(255, 253, 247, 0.98);
+  box-shadow: 0 -18px 48px rgba(39, 50, 61, 0.18);
+  overflow: auto;
+}
+
+.shape-edit-sheet[hidden],
+.shape-sheet-backdrop[hidden] {
+  display: none;
+}
+
+.sheet-handle {
+  justify-self: center;
+  width: 42px;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(83, 94, 90, 0.28);
+}
+
+.shape-edit-sheet h3,
+.shape-edit-sheet p {
+  margin: 0;
+}
+
+.shape-edit-sheet h3 {
+  font-size: 1rem;
+}
+
+.shape-edit-sheet p {
+  color: rgba(39, 50, 61, 0.7);
+  font-size: 0.82rem;
+  line-height: 1.65;
+}
+
+.shape-sheet-fields {
+  display: grid;
+  gap: 12px;
+}
+
+.sheet-actions {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+}
+
 .table-tools {
   position: relative;
   height: 54px;
@@ -1523,6 +1612,10 @@ svg marker path {
 
 .circle-outer-label {
   fill: rgba(83, 94, 90, 0.72);
+}
+
+.circle-boundary-label {
+  fill: rgba(116, 85, 0, 0.78);
 }
 
 .circle-core-label {
@@ -2015,10 +2108,59 @@ svg marker path {
 
   .atelier-room .worktable {
     order: -1;
+    position: sticky;
+    top: 0;
+    z-index: 12;
+    gap: 12px;
   }
 
   .atelier-room .shape-form {
     order: 1;
+    padding-bottom: 84px;
+  }
+
+  .shape-form > label,
+  .shape-form .shape-fields {
+    display: none !important;
+  }
+
+  .mobile-shape-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .mobile-shape-actions .quiet-button {
+    min-height: 42px;
+    font-size: 0.82rem;
+  }
+
+  .shape-form > button[type="submit"] {
+    position: sticky;
+    bottom: 12px;
+    z-index: 30;
+    min-height: 48px;
+    box-shadow: 0 14px 34px rgba(0, 78, 122, 0.28);
+  }
+
+  .shape-form > .form-note {
+    display: block;
+  }
+
+  .shape-hotspot {
+    pointer-events: all;
+  }
+
+  .atelier-question {
+    padding: 10px 12px;
+  }
+
+  .atelier-question span {
+    font-size: 0.82rem;
+  }
+
+  .table-tools {
+    height: 34px;
   }
 
   .gallery-room {

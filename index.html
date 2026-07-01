@@ -239,7 +239,7 @@
 
             <label>
               図形タイトル
-              <input name="title" type="text" placeholder="例：自分・推し・公式の距離" required>
+              <input name="title" type="text" placeholder="例：自分・推し・公式の距離">
             </label>
 
             <div class="shape-fields shape-fields-triangle active" data-fields="triangle">
@@ -301,6 +301,18 @@
               <label>
                 内側 3
                 <input name="circleInner3" type="text" placeholder="例：残したい感覚">
+              </label>
+              <label>
+                境界 1
+                <input name="circleBoundary1" type="text" placeholder="例：内側と外側のあいだにあるもの">
+              </label>
+              <label>
+                境界 2
+                <input name="circleBoundary2" type="text" placeholder="例：まだ決めきれないこと">
+              </label>
+              <label>
+                境界 3
+                <input name="circleBoundary3" type="text" placeholder="例：行き来している気持ち">
               </label>
               <label>
                 外側 1
@@ -390,6 +402,13 @@
               <span>このかたちを風景に置きますか。</span>
             </label>
 
+            <div class="mobile-shape-actions wide" aria-label="スマホ用の編集操作">
+              <button class="quiet-button" type="button" data-mobile-edit="title">タイトル</button>
+              <button class="quiet-button" type="button" data-mobile-edit="memo">フリーメモ</button>
+              <button class="quiet-button" type="button" data-mobile-edit="adjust">調整</button>
+              <button class="quiet-button" type="button" data-mobile-edit="landscape">風景に置く</button>
+            </div>
+
             <button class="primary-button wide" type="submit">かたちを保存する</button>
             <p class="form-note wide" id="shape-status" aria-live="polite"></p>
           </form>
@@ -408,6 +427,18 @@
             </div>
           </div>
         </div>
+
+        <div class="shape-sheet-backdrop" id="shape-sheet-backdrop" hidden></div>
+        <section class="shape-edit-sheet" id="shape-edit-sheet" aria-live="polite" hidden>
+          <div class="sheet-handle" aria-hidden="true"></div>
+          <h3 id="shape-sheet-title">編集</h3>
+          <p id="shape-sheet-description">タップした部分だけを編集できます。</p>
+          <div class="shape-sheet-fields" id="shape-sheet-fields"></div>
+          <div class="sheet-actions">
+            <button class="primary-button" type="button" id="shape-sheet-apply">反映する</button>
+            <button class="quiet-button" type="button" id="shape-sheet-close">閉じる</button>
+          </div>
+        </section>
       </section>
 
       <section class="view view-gallery" id="gallery-view" aria-labelledby="gallery-title">
