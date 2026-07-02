@@ -106,6 +106,7 @@ bindFreeMemoForm();
 bindShapeForm();
 bindShapeTabs();
 bindShapeSheet();
+bindGalleryActions();
 bindSettingsControls();
 renderAll();
 updateShapePreview();
@@ -353,6 +354,25 @@ function bindShapeSheet() {
   shapeSheetBackdrop.addEventListener("click", closeShapeSheet);
   shapeSheetFields.addEventListener("input", syncShapeSheetFields);
   shapeSheetFields.addEventListener("change", syncShapeSheetFields);
+}
+
+function bindGalleryActions() {
+  galleryList.addEventListener("click", (event) => {
+    const deleteButton = event.target.closest(".delete-shape");
+    if (deleteButton) {
+      event.preventDefault();
+      event.stopPropagation();
+      deleteShape(deleteButton.dataset.shapeId);
+      return;
+    }
+
+    const editButton = event.target.closest(".edit-shape");
+    if (editButton) {
+      event.preventDefault();
+      event.stopPropagation();
+      startEditShape(editButton.dataset.shapeId);
+    }
+  });
 }
 
 function selectShapeKind(kind) {
@@ -750,12 +770,6 @@ function renderGallery() {
     galleryList.append(card);
   });
 
-  galleryList.querySelectorAll(".edit-shape").forEach((button) => {
-    button.addEventListener("click", () => startEditShape(button.dataset.shapeId));
-  });
-  galleryList.querySelectorAll(".delete-shape").forEach((button) => {
-    button.addEventListener("click", () => deleteShape(button.dataset.shapeId));
-  });
 }
 
 function renderStrata() {
