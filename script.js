@@ -108,6 +108,28 @@ const shapeCellTextFields = new Set([
   "vennOutside",
 ]);
 
+const SHAPE_DOWNLOAD_STYLE = `
+  svg { background: #fffdf7; font-family: "Yu Gothic", "Hiragino Sans", Meiryo, sans-serif; }
+  text { fill: #27323d; paint-order: stroke; stroke: rgba(255, 253, 247, 0.78); stroke-width: 2px; stroke-linejoin: round; }
+  .shape-fill { fill: rgba(184, 212, 170, 0.34); stroke: rgba(39, 50, 61, 0.54); stroke-width: 1.6; }
+  .shape-line { fill: none; stroke: #4b7394; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+  .shape-line.strong { stroke: #b56b54; }
+  marker path { fill: #4b7394; stroke: none; }
+  .shape-point, .shape-core { fill: #fffdf7; stroke: #4f7470; stroke-width: 2; }
+  .shape-ring { fill: none; stroke: rgba(39, 50, 61, 0.48); stroke-width: 1.6; }
+  .shape-ring.dashed { stroke-dasharray: 6 6; }
+  .circle-outer { fill: rgba(210, 226, 214, 0.62); }
+  .circle-outer-label, .venn-outside-text { fill: #5d6e71; }
+  .circle-boundary-label { fill: #675f47; }
+  .circle-core-label, .shape-title { font-weight: 700; }
+  .venn-outside { fill: rgba(245, 239, 226, 0.7); stroke: rgba(39, 50, 61, 0.14); stroke-width: 1; }
+  .venn-circle { fill-opacity: 0.54; stroke: rgba(39, 50, 61, 0.48); stroke-width: 1.8; }
+  .venn-left { fill: #b8d4aa; }
+  .venn-right { fill: #9fc3d5; }
+  .venn-overlap-text { font-weight: 700; }
+  .shape-hotspot { display: none; }
+`;
+
 const atelierQuestions = {
   triangle: [
     "今の関係を三角形にすると？",
@@ -418,6 +440,14 @@ function bindShapeSheet() {
 
 function bindGalleryActions() {
   galleryList.addEventListener("click", (event) => {
+    const downloadButton = event.target.closest(".download-shape");
+    if (downloadButton) {
+      event.preventDefault();
+      event.stopPropagation();
+      downloadShapeImage(downloadButton.dataset.shapeId, downloadButton);
+      return;
+    }
+
     const deleteButton = event.target.closest(".delete-shape");
     if (deleteButton) {
       event.preventDefault();
@@ -828,6 +858,7 @@ function renderGallery() {
       </div>
       <div class="card-actions">
         <button class="quiet-button edit-shape" type="button" data-shape-id="${escapeHtml(shape.id)}">編集</button>
+        <button class="quiet-button download-shape" type="button" data-shape-id="${escapeHtml(shape.id)}">画像保存</button>
         <button class="quiet-button delete-action delete-shape" type="button" data-shape-id="${escapeHtml(shape.id)}">削除</button>
       </div>
     `;
@@ -1013,6 +1044,94 @@ function deleteShape(shapeId) {
   }
   saveState();
   renderAll();
+}
+
+async function downloadShapeImage(shapeId, button) {
+  const shape = state.shapes.find((item) => item.id === shapeId);
+  if (!shape) {
+    return;
+  }
+
+  const originalText = button?.textContent || "";
+  if (button) {
+    button.disabled = true;
+    button.textContent = "保存中";
+  }
+
+  const filename = `${safeFileName(shape.title || "かたち")}.png`;
+
+  try {
+    const svgMarkup = createStandaloneShapeSvg(shape);
+    const pngBlob = await svgToPngBlob(svgMarkup);
+    triggerDownload(pngBlob, filename);
+  } catch (error) {
+    console.warn("PNG save failed. Falling back to SVG.", error);
+    const svgBlob = new Blob([createStandaloneShapeSvg(shape)], {
+      type: "image/svg+xml;charset=utf-8",
+    });
+    triggerDownload(svgBlob, `${safeFileName(shape.title || "かたち")}.svg`);
+  } finally {
+    if (button) {
+      window.setTimeout(() => {
+        button.disabled = false;
+        button.textContent = originalText;
+      }, 500);
+    }
+  }
+}
+
+function createStandaloneShapeSvg(shape) {
+  const rawSvg = renderShapeSvg(shape, "large").trim();
+  const withNamespace = rawSvg.replace("<svg", '<svg xmlns="http://www.w3.org/2000/svg"');
+  const style = `<defs><style>${SHAPE_DOWNLOAD_STYLE}</style></defs>`;
+
+  return withNamespace.replace(/<svg([^>]*)>/, `<svg$1>${style}`);
+}
+
+function svgToPngBlob(svgMarkup) {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    const svgBlob = new Blob([svgMarkup], { type: "image/svg+xml;charset=utf-8" });
+    const url = URL.createObjectURL(svgBlob);
+
+    image.onload = () => {
+      const canvas = document.createElement("canvas");
+      const scale = 4;
+      canvas.width = image.width * scale;
+      canvas.height = image.height * scale;
+      const context = canvas.getContext("2d");
+
+      context.fillStyle = "#fffdf7";
+      context.fillRect(0, 0, canvas.width, canvas.height);
+      context.drawImage(image, 0, 0, canvas.width, canvas.height);
+      URL.revokeObjectURL(url);
+      canvas.toBlob((blob) => {
+        if (blob) {
+          resolve(blob);
+        } else {
+          reject(new Error("PNGに変換できませんでした。"));
+        }
+      }, "image/png");
+    };
+
+    image.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error("画像を読み込めませんでした。"));
+    };
+
+    image.src = url;
+  });
+}
+
+function triggerDownload(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.append(link);
+  link.click();
+  link.remove();
+  window.setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 function syncLandscapeFromLatestDiary() {
@@ -1545,6 +1664,15 @@ function shortText(value, fallback = "", maxLength = 12) {
     return text;
   }
   return `${text.slice(0, maxLength - 1)}…`;
+}
+
+function safeFileName(value) {
+  const normalized = String(value || "shape")
+    .trim()
+    .replace(/[\\/:*?"<>|]+/g, "-")
+    .replace(/\s+/g, "-")
+    .slice(0, 40);
+  return normalized || "shape";
 }
 
 function toSvgId(value) {
