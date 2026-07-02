@@ -72,6 +72,42 @@ const resetDataButton = document.querySelector("#reset-data-button");
 const resetStatus = document.querySelector("#reset-status");
 const shapeTabs = document.querySelectorAll(".shape-tab");
 
+const SHAPE_TEXT_MAX_LENGTH = 10;
+const SHAPE_TEXT_WRAP_THRESHOLD = 7;
+const shapeCellTextFields = new Set([
+  "pointA",
+  "pointB",
+  "pointC",
+  "arrowAB",
+  "arrowBA",
+  "arrowAC",
+  "arrowCA",
+  "arrowBC",
+  "arrowCB",
+  "circleCore",
+  "circleInner1",
+  "circleInner2",
+  "circleInner3",
+  "circleBoundary1",
+  "circleBoundary2",
+  "circleBoundary3",
+  "circleOuter1",
+  "circleOuter2",
+  "circleOuter3",
+  "vennLeftLabel",
+  "vennRightLabel",
+  "vennLeftOnly1",
+  "vennLeftOnly2",
+  "vennLeftOnly3",
+  "vennOverlap1",
+  "vennOverlap2",
+  "vennOverlap3",
+  "vennRightOnly1",
+  "vennRightOnly2",
+  "vennRightOnly3",
+  "vennOutside",
+]);
+
 const atelierQuestions = {
   triangle: [
     "今の関係を三角形にすると？",
@@ -108,6 +144,7 @@ bindShapeTabs();
 bindShapeSheet();
 bindGalleryActions();
 bindSettingsControls();
+applyShapeTextInputLimits();
 renderAll();
 updateShapePreview();
 renderAtelierQuestion();
@@ -256,7 +293,10 @@ function bindFreeMemoForm() {
 }
 
 function bindShapeForm() {
-  shapeForm.addEventListener("input", updateShapePreview);
+  shapeForm.addEventListener("input", (event) => {
+    clampShapeCellInput(event.target);
+    updateShapePreview();
+  });
 
   shapeForm.addEventListener("submit", (event) => {
     event.preventDefault();
@@ -310,6 +350,26 @@ function bindShapeForm() {
     const message = existingShape ? "かたちを更新しました。" : "かたちを保存しました。";
     showMessage(shapeStatus, message);
   });
+}
+
+function applyShapeTextInputLimits() {
+  shapeCellTextFields.forEach((name) => {
+    shapeForm.querySelectorAll(`[name="${name}"]`).forEach((input) => {
+      input.maxLength = SHAPE_TEXT_MAX_LENGTH;
+      clampShapeCellInput(input);
+    });
+  });
+}
+
+function clampShapeCellInput(input) {
+  if (!input?.name || !shapeCellTextFields.has(input.name)) {
+    return;
+  }
+
+  const chars = Array.from(input.value || "");
+  if (chars.length > SHAPE_TEXT_MAX_LENGTH) {
+    input.value = chars.slice(0, SHAPE_TEXT_MAX_LENGTH).join("");
+  }
 }
 
 function bindShapeTabs() {
@@ -464,6 +524,10 @@ function syncShapeSheetFields() {
       formInput.checked = sheetInput.checked;
     } else {
       formInput.value = sheetInput.value;
+      clampShapeCellInput(formInput);
+      if (shapeCellTextFields.has(field.name)) {
+        sheetInput.value = formInput.value;
+      }
     }
     formInput.dispatchEvent(new Event("input", { bubbles: true }));
     formInput.dispatchEvent(new Event("change", { bubbles: true }));
@@ -506,7 +570,7 @@ function renderShapeSheetField(field) {
   return `
     <label>
       ${escapeHtml(field.label)}
-      <input name="${field.sheetName}" type="text" value="${escapeHtml(value)}" placeholder="${escapeHtml(field.placeholder || "")}" maxlength="${field.maxLength || 40}">
+      <input name="${field.sheetName}" type="text" value="${escapeHtml(value)}" placeholder="${escapeHtml(field.placeholder || "")}" maxlength="${field.maxLength || (shapeCellTextFields.has(field.name) ? SHAPE_TEXT_MAX_LENGTH : 40)}">
     </label>
   `;
 }
@@ -1051,12 +1115,12 @@ function renderTriangleSvg(shape, size) {
     size === "mini"
       ? ""
       : `
-      <text class="shape-arrow-text arrow-clockwise" x="88" y="132" text-anchor="middle" font-size="${arrowTextSize}">${escapeHtml(shortText(arrows.ab, "", 7))}</text>
-      <text class="shape-arrow-text arrow-counter" x="92" y="86" text-anchor="middle" font-size="${arrowTextSize}">${escapeHtml(shortText(arrows.ba, "", 7))}</text>
-      <text class="shape-arrow-text arrow-counter" x="112" y="160" text-anchor="middle" font-size="${arrowTextSize}">${escapeHtml(shortText(arrows.ac, "", 7))}</text>
-      <text class="shape-arrow-text arrow-clockwise" x="188" y="204" text-anchor="middle" font-size="${arrowTextSize}">${escapeHtml(shortText(arrows.ca, "", 7))}</text>
-      <text class="shape-arrow-text arrow-clockwise" x="212" y="132" text-anchor="middle" font-size="${arrowTextSize}">${escapeHtml(shortText(arrows.bc, "", 7))}</text>
-      <text class="shape-arrow-text arrow-counter" x="208" y="86" text-anchor="middle" font-size="${arrowTextSize}">${escapeHtml(shortText(arrows.cb, "", 7))}</text>
+      ${renderSvgMultilineText({ x: 88, y: 132, text: arrows.ab, fontSize: arrowTextSize, className: "shape-arrow-text arrow-clockwise", lineHeight: 10 })}
+      ${renderSvgMultilineText({ x: 92, y: 86, text: arrows.ba, fontSize: arrowTextSize, className: "shape-arrow-text arrow-counter", lineHeight: 10 })}
+      ${renderSvgMultilineText({ x: 112, y: 160, text: arrows.ac, fontSize: arrowTextSize, className: "shape-arrow-text arrow-counter", lineHeight: 10 })}
+      ${renderSvgMultilineText({ x: 188, y: 204, text: arrows.ca, fontSize: arrowTextSize, className: "shape-arrow-text arrow-clockwise", lineHeight: 10 })}
+      ${renderSvgMultilineText({ x: 212, y: 132, text: arrows.bc, fontSize: arrowTextSize, className: "shape-arrow-text arrow-clockwise", lineHeight: 10 })}
+      ${renderSvgMultilineText({ x: 208, y: 86, text: arrows.cb, fontSize: arrowTextSize, className: "shape-arrow-text arrow-counter", lineHeight: 10 })}
     `;
 
   return `
@@ -1087,9 +1151,9 @@ function renderTriangleSvg(shape, size) {
       ` : ""}
       ${arrowTexts}
       ${titleSize ? `<text class="shape-title" x="150" y="228" text-anchor="middle" font-size="${titleSize}">${title}</text>` : ""}
-      <text x="150" y="23" text-anchor="middle" font-size="${labelSize}">${escapeHtml(shortText(points.b, "推し", 10))}</text>
-      <text x="52" y="211" text-anchor="middle" font-size="${labelSize}">${escapeHtml(shortText(points.a, "自分", 10))}</text>
-      <text x="248" y="211" text-anchor="middle" font-size="${labelSize}">${escapeHtml(shortText(points.c, "第三者", 10))}</text>
+      ${renderSvgMultilineText({ x: 150, y: 23, text: points.b, fallback: "推し", fontSize: labelSize, lineHeight: 12 })}
+      ${renderSvgMultilineText({ x: 52, y: 211, text: points.a, fallback: "自分", fontSize: labelSize, lineHeight: 12 })}
+      ${renderSvgMultilineText({ x: 248, y: 211, text: points.c, fallback: "第三者", fontSize: labelSize, lineHeight: 12 })}
     </svg>
   `;
 }
@@ -1221,7 +1285,6 @@ function renderVennSvg(shape, size) {
   const leftCx = 160 - distance / 2;
   const rightCx = 160 + distance / 2;
   const cy = isMini ? 106 : 112;
-  const outerText = shortText(venn.outsideText, "外側", 12);
 
   if (isMini) {
     return `
@@ -1237,12 +1300,12 @@ function renderVennSvg(shape, size) {
       <rect class="venn-outside" x="22" y="28" width="276" height="178" rx="18"></rect>
       <circle class="venn-circle venn-left" cx="${leftCx}" cy="${cy}" r="${leftRadius}"></circle>
       <circle class="venn-circle venn-right" cx="${rightCx}" cy="${cy}" r="${rightRadius}"></circle>
-      <text x="${leftCx}" y="${Math.max(28, cy - leftRadius - 8)}" text-anchor="middle" font-size="${labelSize}">${escapeHtml(shortText(venn.leftLabel, "自分", 10))}</text>
-      <text x="${rightCx}" y="${Math.max(28, cy - rightRadius - 8)}" text-anchor="middle" font-size="${labelSize}">${escapeHtml(shortText(venn.rightLabel, "相手", 10))}</text>
-      ${renderVennRegionTexts(venn.leftOnlyTexts, leftCx - leftRadius * 0.34, cy, "左だけ", "venn-region-text", 7)}
-      ${renderVennRegionTexts(venn.overlapTexts, 160, cy, "重なり", "venn-region-text venn-overlap-text", 5)}
-      ${renderVennRegionTexts(venn.rightOnlyTexts, rightCx + rightRadius * 0.34, cy, "右だけ", "venn-region-text", 7)}
-      <text class="venn-outside-text" x="160" y="198" text-anchor="middle" font-size="${regionSize}">${escapeHtml(outerText)}</text>
+      ${renderSvgMultilineText({ x: leftCx, y: Math.max(28, cy - leftRadius - 8), text: venn.leftLabel, fallback: "自分", fontSize: labelSize, lineHeight: 12 })}
+      ${renderSvgMultilineText({ x: rightCx, y: Math.max(28, cy - rightRadius - 8), text: venn.rightLabel, fallback: "相手", fontSize: labelSize, lineHeight: 12 })}
+      ${renderVennRegionTexts(venn.leftOnlyTexts, leftCx - leftRadius * 0.34, cy, "左だけ", "venn-region-text")}
+      ${renderVennRegionTexts(venn.overlapTexts, 160, cy, "重なり", "venn-region-text venn-overlap-text")}
+      ${renderVennRegionTexts(venn.rightOnlyTexts, rightCx + rightRadius * 0.34, cy, "右だけ", "venn-region-text")}
+      ${renderSvgMultilineText({ x: 160, y: 198, text: venn.outsideText, fallback: "外側", fontSize: regionSize, className: "venn-outside-text", lineHeight: 12 })}
       <rect class="shape-hotspot" data-shape-edit="outside" tabindex="0" aria-label="外側を編集" x="0" y="0" width="320" height="250" rx="18"></rect>
       <circle class="shape-hotspot" data-shape-edit="leftOnly" tabindex="0" aria-label="左だけの領域を編集" cx="${leftCx - leftRadius * 0.28}" cy="${cy}" r="${leftRadius * 0.48}"></circle>
       <circle class="shape-hotspot" data-shape-edit="rightOnly" tabindex="0" aria-label="右だけの領域を編集" cx="${rightCx + rightRadius * 0.28}" cy="${cy}" r="${rightRadius * 0.48}"></circle>
@@ -1373,13 +1436,11 @@ function renderSvgMultilineText({
   y,
   text,
   fallback = "",
-  maxCharsPerLine = 6,
-  maxLines = 2,
   fontSize = 11,
   className = "",
   lineHeight = 12,
 }) {
-  const lines = splitSvgText(text || fallback, maxCharsPerLine, maxLines);
+  const lines = splitShapeCellText(text || fallback);
   const startY = y - ((lines.length - 1) * lineHeight) / 2;
   const classAttribute = className ? ` class="${className}"` : "";
   const tspans = lines
@@ -1392,37 +1453,48 @@ function renderSvgMultilineText({
   return `<text${classAttribute} text-anchor="middle" font-size="${fontSize}">${tspans}</text>`;
 }
 
-function renderVennRegionTexts(texts, x, y, fallback, className, maxCharsPerLine) {
+function renderVennRegionTexts(texts, x, y, fallback, className) {
   const visibleTexts = texts.length > 0 ? texts.slice(0, 3) : [fallback];
-  const lineHeight = 13;
-  const startY = y - ((visibleTexts.length - 1) * lineHeight) / 2;
-  const tspans = visibleTexts
-    .map((text, index) => {
-      const line = shortText(text, fallback, maxCharsPerLine);
-      const yAttribute = index === 0 ? ` y="${startY}"` : ` dy="${lineHeight}"`;
-      return `<tspan x="${x}"${yAttribute}>${escapeHtml(line)}</tspan>`;
+  const lineHeight = 11;
+  const itemGap = 3;
+  const prepared = visibleTexts.map((text) => splitShapeCellText(text || fallback));
+  const totalHeight =
+    prepared.reduce((height, lines) => height + (lines.length - 1) * lineHeight, 0) +
+    (prepared.length - 1) * (lineHeight + itemGap);
+  let cursorY = y - totalHeight / 2;
+  const tspans = prepared
+    .map((lines, itemIndex) => {
+      const itemText = lines
+        .map((line, lineIndex) => {
+          const yAttribute =
+            itemIndex === 0 && lineIndex === 0 ? ` y="${cursorY}"` : ` dy="${lineHeight}"`;
+          return `<tspan x="${x}"${yAttribute}>${escapeHtml(line)}</tspan>`;
+        })
+        .join("");
+      cursorY += lines.length * lineHeight + itemGap;
+      return itemText;
     })
     .join("");
 
   return `<text class="${className}" text-anchor="middle" font-size="10.5">${tspans}</text>`;
 }
 
-function splitSvgText(value, maxCharsPerLine, maxLines) {
-  const chars = Array.from(String(value || "").trim());
+function splitShapeCellText(value) {
+  const chars = Array.from(String(value || "").trim()).slice(0, SHAPE_TEXT_MAX_LENGTH);
   if (chars.length === 0) {
     return [""];
   }
 
-  const capacity = maxCharsPerLine * maxLines;
-  const limited =
-    chars.length > capacity ? [...chars.slice(0, Math.max(1, capacity - 1)), "…"] : chars;
-  const lines = [];
-
-  for (let index = 0; index < limited.length && lines.length < maxLines; index += maxCharsPerLine) {
-    lines.push(limited.slice(index, index + maxCharsPerLine).join(""));
+  if (chars.length < SHAPE_TEXT_WRAP_THRESHOLD) {
+    return [chars.join("")];
   }
 
-  return lines;
+  let splitIndex = Math.ceil(chars.length / 2);
+  if (chars.length - splitIndex < 2) {
+    splitIndex = chars.length - 2;
+  }
+
+  return [chars.slice(0, splitIndex).join(""), chars.slice(splitIndex).join("")];
 }
 
 function normalizeTextList(value, fallback = "") {
