@@ -1676,9 +1676,18 @@ svg marker path {
   font-weight: 700;
 }
 
-.caption .caption-note {
-  padding-left: 10px;
+.gallery-memo-panel {
+  margin: -2px 12px 0;
+  padding: 10px 12px;
   border-left: 3px solid rgba(126, 149, 143, 0.22);
+  background: rgba(255, 253, 247, 0.62);
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.65;
+}
+
+.gallery-memo-panel p {
+  margin: 0;
 }
 
 .caption .caption-meta {

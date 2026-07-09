@@ -440,6 +440,14 @@ function bindShapeSheet() {
 
 function bindGalleryActions() {
   galleryList.addEventListener("click", (event) => {
+    const memoButton = event.target.closest(".show-shape-memo");
+    if (memoButton) {
+      event.preventDefault();
+      event.stopPropagation();
+      toggleShapeMemo(memoButton);
+      return;
+    }
+
     const downloadButton = event.target.closest(".download-shape");
     if (downloadButton) {
       event.preventDefault();
@@ -852,11 +860,13 @@ function renderGallery() {
       <div class="caption">
         <p class="art-plaque">展示 ${String(index + 1).padStart(2, "0")} / ${escapeHtml(labels.shape[getShapeKind(shape)] || getShapeKind(shape))} / ${formatDate(shape.createdAt)}</p>
         <h3>${escapeHtml(shape.title)}</h3>
-        <p class="caption-note">${escapeHtml(shape.memo ? excerpt(shape.memo) : "短いメモはありません。")}</p>
         ${renderGalleryCaptionExtra(shape)}
-        <span>美術館に静かに保存中</span>
+      </div>
+      <div class="gallery-memo-panel" hidden>
+        <p>${escapeHtml(shape.memo ? excerpt(shape.memo) : "短いメモはありません。")}</p>
       </div>
       <div class="card-actions">
+        <button class="quiet-button show-shape-memo" type="button" aria-expanded="false">表示</button>
         <button class="quiet-button edit-shape" type="button" data-shape-id="${escapeHtml(shape.id)}">編集</button>
         <button class="quiet-button download-shape" type="button" data-shape-id="${escapeHtml(shape.id)}">画像保存</button>
         <button class="quiet-button delete-action delete-shape" type="button" data-shape-id="${escapeHtml(shape.id)}">削除</button>
@@ -865,6 +875,18 @@ function renderGallery() {
     galleryList.append(card);
   });
 
+}
+
+function toggleShapeMemo(button) {
+  const panel = button.closest(".art-card")?.querySelector(".gallery-memo-panel");
+  if (!panel) {
+    return;
+  }
+
+  const shouldOpen = panel.hidden;
+  panel.hidden = !shouldOpen;
+  button.setAttribute("aria-expanded", String(shouldOpen));
+  button.textContent = shouldOpen ? "閉じる" : "表示";
 }
 
 function renderStrata() {
