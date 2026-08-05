@@ -1139,11 +1139,20 @@ form {
   transition: box-shadow 180ms ease, filter 180ms ease, background 180ms ease;
 }
 
+.record-egg span {
+  max-width: 76%;
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: rgba(255, 253, 247, 0.58);
+}
+
 .record-egg-outer {
   inset: 28px 32px 24px;
   border: 1.5px solid rgba(0, 114, 178, 0.34);
   border-radius: 48% 42% 44% 52% / 54% 45% 50% 46%;
   background: rgba(159, 195, 213, 0.28);
+  align-items: start;
+  padding-top: 24px;
 }
 
 .record-egg-inner {
@@ -1981,13 +1990,15 @@ svg marker path {
   border: 1px solid rgba(0, 114, 178, 0.28);
   border-radius: 48% 42% 44% 52% / 54% 45% 50% 46%;
   background: rgba(159, 195, 213, 0.18);
+  align-items: start;
+  padding-top: 8px;
 }
 
 .record-shape-mini .mini-inner {
   left: 50%;
-  top: 52%;
+  top: 58%;
   width: 42%;
-  height: 44%;
+  height: 38%;
   border: 1px solid rgba(84, 137, 95, 0.3);
   border-radius: 50% 44% 46% 54% / 58% 44% 50% 42%;
   background: rgba(184, 212, 170, 0.32);
