@@ -152,34 +152,59 @@
           </div>
 
           <form class="journal-desk" id="diary-form">
+            <section class="record-shape-panel wide" aria-labelledby="record-shape-title">
+              <div class="record-shape-copy">
+                <p class="panel-kicker">記録のかたち</p>
+                <h3 id="record-shape-title">内側・外側・余白に、今日の記録を置く</h3>
+                <p>長い文章は下の欄に置き、図形には短いラベルだけを表示します。</p>
+              </div>
+              <div class="record-shape-preview" id="record-shape-preview" data-focus-area="" aria-label="記録のかたちのプレビュー">
+                <div class="record-margin-glow"></div>
+                <div class="record-egg record-egg-outer">
+                  <span id="record-outer-label-preview">外側</span>
+                </div>
+                <div class="record-egg record-egg-inner">
+                  <span id="record-inner-label-preview">内側</span>
+                </div>
+                <span class="record-margin-label" id="record-margin-label-preview">余白</span>
+              </div>
+            </section>
+
             <label>
               タイトル
               <input id="diary-title" name="title" type="text" placeholder="例：今日の発表を見たあと" required>
             </label>
 
-            <label class="wide diary-body-single" data-body-mode="single">
-              本文
-              <textarea name="body" rows="7" placeholder="書けるところからで大丈夫です。" required></textarea>
-            </label>
-
-            <div class="diary-both-fields wide" data-body-mode="both" hidden>
-              <label>
-                内側の記録
-                <textarea name="innerBody" rows="7" placeholder="自分の感情、記憶、価値観など。"></textarea>
-              </label>
-              <label>
-                外側の記録
-                <textarea name="outerBody" rows="7" placeholder="公式、SNS、世間、情報環境など。"></textarea>
-              </label>
-            </div>
+            <input type="hidden" name="recordType" value="both">
 
             <label>
-              記録タイプ
-              <select name="recordType" required>
-                <option value="inner">内側の記録</option>
-                <option value="outer">外側の記録</option>
-                <option value="both">両方の記録</option>
-              </select>
+              内側ラベル
+              <input name="innerLabel" type="text" maxlength="10" placeholder="例：気持ち">
+            </label>
+
+            <label>
+              外側ラベル
+              <input name="outerLabel" type="text" maxlength="10" placeholder="例：公式発表">
+            </label>
+
+            <label>
+              余白ラベル
+              <input name="marginLabel" type="text" maxlength="10" placeholder="例：まだ途中">
+            </label>
+
+            <label class="wide">
+              内側の記録
+              <textarea name="innerBody" rows="6" placeholder="自分の感情、記憶、価値観、推しへの思いなど。"></textarea>
+            </label>
+
+            <label class="wide">
+              外側の記録
+              <textarea name="outerBody" rows="6" placeholder="公式、SNS、世間、出来事、周囲の反応など。"></textarea>
+            </label>
+
+            <label class="wide diary-body-single" data-body-mode="single">
+              まだ分けないメモ
+              <textarea name="body" rows="5" placeholder="内側とも外側とも言い切れないことを、ここに置けます。"></textarea>
             </label>
 
             <label>

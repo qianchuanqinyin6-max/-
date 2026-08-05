@@ -42,10 +42,16 @@ const diaryStatus = document.querySelector("#diary-status");
 const diarySubmitButton = diaryForm.querySelector('button[type="submit"]');
 const diaryRecordTypeSelect = diaryForm.querySelector('[name="recordType"]');
 const diaryBodySingle = diaryForm.querySelector('[data-body-mode="single"]');
-const diaryBothFields = diaryForm.querySelector('[data-body-mode="both"]');
 const diaryBodyInput = diaryForm.querySelector('[name="body"]');
 const diaryInnerBodyInput = diaryForm.querySelector('[name="innerBody"]');
 const diaryOuterBodyInput = diaryForm.querySelector('[name="outerBody"]');
+const diaryInnerLabelInput = diaryForm.querySelector('[name="innerLabel"]');
+const diaryOuterLabelInput = diaryForm.querySelector('[name="outerLabel"]');
+const diaryMarginLabelInput = diaryForm.querySelector('[name="marginLabel"]');
+const recordShapePreview = document.querySelector("#record-shape-preview");
+const recordInnerLabelPreview = document.querySelector("#record-inner-label-preview");
+const recordOuterLabelPreview = document.querySelector("#record-outer-label-preview");
+const recordMarginLabelPreview = document.querySelector("#record-margin-label-preview");
 const quickWeatherForm = document.querySelector("#quick-weather-form");
 const quickWeatherSelect = document.querySelector("#quick-weather-select");
 const quickWeatherStatus = document.querySelector("#quick-weather-status");
@@ -222,25 +228,27 @@ function showView(viewName) {
 }
 
 function bindDiaryForm() {
-  diaryRecordTypeSelect.addEventListener("change", syncDiaryBodyFields);
   syncDiaryBodyFields();
+  updateRecordShapePreview();
+  diaryForm.addEventListener("input", updateRecordShapePreview);
+  diaryForm.addEventListener("focusin", (event) => {
+    recordShapePreview.dataset.focusArea = diaryFocusArea(event.target);
+  });
+  diaryForm.addEventListener("focusout", () => {
+    recordShapePreview.dataset.focusArea = "";
+  });
 
   diaryForm.addEventListener("submit", (event) => {
     event.preventDefault();
 
     const formData = new FormData(diaryForm);
-    const recordType = formData.get("recordType") || "inner";
     const body = getFormText(formData, "body");
     const innerBody = getFormText(formData, "innerBody");
     const outerBody = getFormText(formData, "outerBody");
+    const recordType = inferRecordType(innerBody, outerBody, body);
 
-    if (recordType === "both" && !innerBody && !outerBody) {
-      showMessage(diaryStatus, "内側か外側のどちらかに、少しだけ記録を置いてください。");
-      return;
-    }
-
-    if (recordType !== "both" && !body) {
-      showMessage(diaryStatus, "本文を少しだけ入力してください。");
+    if (!innerBody && !outerBody && !body) {
+      showMessage(diaryStatus, "内側・外側・余白のどこかに、少しだけ記録を置いてください。");
       return;
     }
 
@@ -248,9 +256,12 @@ function bindDiaryForm() {
     const diary = {
       id: existingDiary?.id || createId(),
       title: getFormText(formData, "title") || "名前のない記録",
-      body: recordType === "both" ? "" : body,
-      innerBody: recordType === "both" ? innerBody : "",
-      outerBody: recordType === "both" ? outerBody : "",
+      body,
+      innerBody,
+      outerBody,
+      innerLabel: getFormText(formData, "innerLabel") || "内側",
+      outerLabel: getFormText(formData, "outerLabel") || "外側",
+      marginLabel: getFormText(formData, "marginLabel") || "余白",
       recordType,
       weather: formData.get("weather") || "clear",
       wave: formData.get("wave") || "calm",
@@ -272,6 +283,7 @@ function bindDiaryForm() {
     editingDiaryId = null;
     diarySubmitButton.textContent = "記録を地層に積む";
     syncDiaryBodyFields();
+    updateRecordShapePreview();
     renderAll();
 
     const message = existingDiary
@@ -506,6 +518,7 @@ function bindSettingsControls() {
     diarySubmitButton.textContent = "記録を地層に積む";
     shapeSubmitButton.textContent = "かたちを保存する";
     syncDiaryBodyFields();
+    updateRecordShapePreview();
     selectShapeKind("triangle");
     renderAll();
     updateShapePreview();
@@ -906,6 +919,7 @@ function renderStrata() {
 
     layer.innerHTML = `
       <div class="strata-date">${escapeHtml(formatDate(diary.createdAt))}</div>
+      ${renderRecordShapeMini(diary)}
       <div class="strata-content">
         <h3>${escapeHtml(diary.title)}</h3>
         <p class="strata-meta">
@@ -931,10 +945,45 @@ function renderStrata() {
 }
 
 function syncDiaryBodyFields() {
-  const isBoth = diaryRecordTypeSelect.value === "both";
-  diaryBodySingle.hidden = isBoth;
-  diaryBothFields.hidden = !isBoth;
-  diaryBodyInput.required = !isBoth;
+  diaryRecordTypeSelect.value = "both";
+  diaryBodyInput.required = false;
+  diaryInnerBodyInput.required = false;
+  diaryOuterBodyInput.required = false;
+}
+
+function inferRecordType(innerBody, outerBody, marginBody) {
+  if (innerBody && !outerBody && !marginBody) {
+    return "inner";
+  }
+  if (outerBody && !innerBody && !marginBody) {
+    return "outer";
+  }
+  return "both";
+}
+
+function diaryFocusArea(input) {
+  if (!input?.name) {
+    return "";
+  }
+  if (input.name === "innerBody" || input.name === "innerLabel") {
+    return "inner";
+  }
+  if (input.name === "outerBody" || input.name === "outerLabel") {
+    return "outer";
+  }
+  if (input.name === "body" || input.name === "marginLabel") {
+    return "margin";
+  }
+  return "";
+}
+
+function updateRecordShapePreview() {
+  recordInnerLabelPreview.textContent = shortText(diaryInnerLabelInput.value, "内側", 10);
+  recordOuterLabelPreview.textContent = shortText(diaryOuterLabelInput.value, "外側", 10);
+  recordMarginLabelPreview.textContent = shortText(diaryMarginLabelInput.value, "余白", 10);
+  recordShapePreview.classList.toggle("has-inner", Boolean(diaryInnerBodyInput.value.trim()));
+  recordShapePreview.classList.toggle("has-outer", Boolean(diaryOuterBodyInput.value.trim()));
+  recordShapePreview.classList.toggle("has-margin", Boolean(diaryBodyInput.value.trim()));
 }
 
 function startEditDiary(diaryId) {
@@ -946,15 +995,22 @@ function startEditDiary(diaryId) {
   editingDiaryId = diary.id;
   diaryForm.reset();
   diaryForm.querySelector('[name="title"]').value = diary.title || "";
-  diaryRecordTypeSelect.value = diary.recordType || "inner";
+  diaryRecordTypeSelect.value = diary.recordType || "both";
   syncDiaryBodyFields();
-  diaryBodyInput.value = diary.body || diaryBodyText(diary);
-  diaryInnerBodyInput.value = diary.innerBody || (diary.recordType === "both" ? diary.body || "" : "");
-  diaryOuterBodyInput.value = diary.outerBody || "";
+  const legacyBody = diary.body || "";
+  diaryBodyInput.value = diary.innerBody || diary.outerBody ? legacyBody : "";
+  diaryInnerBodyInput.value =
+    diary.innerBody || (diary.recordType === "inner" && !diary.outerBody ? legacyBody : "");
+  diaryOuterBodyInput.value =
+    diary.outerBody || (diary.recordType === "outer" && !diary.innerBody ? legacyBody : "");
+  diaryInnerLabelInput.value = diary.innerLabel || "内側";
+  diaryOuterLabelInput.value = diary.outerLabel || "外側";
+  diaryMarginLabelInput.value = diary.marginLabel || "余白";
   diaryForm.querySelector('[name="weather"]').value = diary.weather || "clear";
   diaryForm.querySelector('[name="wave"]').value = diary.wave || "calm";
   diaryForm.querySelector('[name="important"]').checked = Boolean(diary.important);
   diarySubmitButton.textContent = "記録を更新する";
+  updateRecordShapePreview();
   showView("library");
   showMessage(diaryStatus, "この記録を編集できます。");
 }
@@ -976,6 +1032,7 @@ function deleteDiary(diaryId) {
     diarySubmitButton.textContent = "記録を地層に積む";
     diaryForm.reset();
     syncDiaryBodyFields();
+    updateRecordShapePreview();
   }
   syncLandscapeFromLatestDiary();
   saveState();
@@ -1471,6 +1528,67 @@ function renderDiaryExcerpt(diary) {
       `;
     }
   }
+  return `<p>${escapeHtml(excerpt(diaryBodyText(diary)))}</p>`;
+}
+
+function diaryRecordParts(diary) {
+  const legacyBody = diary.body || "";
+  const hasSplitBody = Boolean(diary.innerBody || diary.outerBody);
+  const inner =
+    diary.innerBody || (!hasSplitBody && diary.recordType === "inner" ? legacyBody : "");
+  const outer =
+    diary.outerBody || (!hasSplitBody && diary.recordType === "outer" ? legacyBody : "");
+  const margin = hasSplitBody || diary.recordType === "both" ? legacyBody : "";
+
+  return {
+    inner,
+    outer,
+    margin,
+    innerLabel: diary.innerLabel || "内側",
+    outerLabel: diary.outerLabel || "外側",
+    marginLabel: diary.marginLabel || "余白",
+  };
+}
+
+function renderRecordShapeMini(diary) {
+  const parts = diaryRecordParts(diary);
+  const innerLabel = shortText(parts.innerLabel, "内側", 10);
+  const outerLabel = shortText(parts.outerLabel, "外側", 10);
+  const marginLabel = shortText(parts.marginLabel, "余白", 10);
+  const classes = [
+    "record-shape-mini",
+    parts.inner ? "has-inner" : "",
+    parts.outer ? "has-outer" : "",
+    parts.margin ? "has-margin" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  return `
+    <div class="${classes}" aria-label="記録のかたち">
+      <span class="mini-margin">${escapeHtml(marginLabel)}</span>
+      <span class="mini-outer">${escapeHtml(outerLabel)}</span>
+      <span class="mini-inner">${escapeHtml(innerLabel)}</span>
+    </div>
+  `;
+}
+
+function renderDiaryExcerpt(diary) {
+  const parts = diaryRecordParts(diary);
+  const inner = parts.inner ? excerpt(parts.inner) : "";
+  const outer = parts.outer ? excerpt(parts.outer) : "";
+  const margin = parts.margin ? excerpt(parts.margin) : "";
+
+  if (inner || outer || margin) {
+    return `
+      <div class="diary-split-excerpt">
+        ${inner ? `<p><strong>${escapeHtml(parts.innerLabel)}</strong>${escapeHtml(inner)}</p>` : ""}
+        ${outer ? `<p><strong>${escapeHtml(parts.outerLabel)}</strong>${escapeHtml(outer)}</p>` : ""}
+        ${margin ? `<p><strong>${escapeHtml(parts.marginLabel)}</strong>${escapeHtml(margin)}</p>` : ""}
+      </div>
+    `;
+  }
+
   return `<p>${escapeHtml(excerpt(diaryBodyText(diary)))}</p>`;
 }
 
