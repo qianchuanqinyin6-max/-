@@ -2160,6 +2160,13 @@ svg marker path {
   box-shadow: 0 18px 45px rgba(64, 76, 78, 0.12);
 }
 
+.art-card-highlight {
+  border-color: rgba(184, 136, 54, 0.42);
+  box-shadow:
+    0 0 0 3px rgba(232, 198, 111, 0.22),
+    0 18px 45px rgba(64, 76, 78, 0.14);
+}
+
 .art-frame {
   position: relative;
   display: grid;

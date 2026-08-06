@@ -156,6 +156,7 @@ let editingDiaryId = null;
 let editingShapeId = null;
 let pendingShapeRecord = null;
 let activeShapeSheetConfig = null;
+let highlightedShapeId = null;
 
 bindNavigation();
 bindDiaryForm();
@@ -877,6 +878,10 @@ function renderGallery() {
   state.shapes.forEach((shape, index) => {
     const card = document.createElement("article");
     card.className = "art-card";
+    if (shape.id === highlightedShapeId) {
+      card.classList.add("art-card-highlight");
+    }
+    card.dataset.shapeId = shape.id;
     card.innerHTML = `
       <div class="art-frame">${renderShapeSvg(shape, "card")}</div>
       <div class="caption">
@@ -943,6 +948,11 @@ function renderStrata() {
           <button class="quiet-button read-diary" type="button" data-diary-id="${escapeHtml(diary.id)}">記録を読む</button>
           <button class="quiet-button edit-diary" type="button" data-diary-id="${escapeHtml(diary.id)}">編集</button>
           <button class="quiet-button delete-action delete-diary" type="button" data-diary-id="${escapeHtml(diary.id)}">削除</button>
+          ${
+            linkedShapes.length
+              ? `<button class="quiet-button view-linked-shape" type="button" data-shape-id="${escapeHtml(linkedShapes[0].id)}">かたちをみる</button>`
+              : `<button class="quiet-button make-shape-from-record" type="button" data-diary-id="${escapeHtml(diary.id)}">かたちをつくる</button>`
+          }
         </div>
       </div>
     `;
@@ -957,6 +967,12 @@ function renderStrata() {
   });
   strataList.querySelectorAll(".delete-diary").forEach((button) => {
     button.addEventListener("click", () => deleteDiary(button.dataset.diaryId));
+  });
+  strataList.querySelectorAll(".make-shape-from-record").forEach((button) => {
+    button.addEventListener("click", () => makeShapeFromStrata(button.dataset.diaryId));
+  });
+  strataList.querySelectorAll(".view-linked-shape").forEach((button) => {
+    button.addEventListener("click", () => showLinkedShape(button.dataset.shapeId));
   });
 }
 
@@ -1180,6 +1196,32 @@ function renderTalkRecordMini(diary) {
 
 function getLinkedShapes(diaryId) {
   return state.shapes.filter((shape) => shape.linkedRecordId === diaryId);
+}
+
+function makeShapeFromStrata(diaryId) {
+  const diary = state.diaries.find((item) => item.id === diaryId);
+  if (!diary) {
+    return;
+  }
+
+  startShapeFromRecord(diary, "triangle");
+}
+
+function showLinkedShape(shapeId) {
+  const shape = state.shapes.find((item) => item.id === shapeId);
+  if (!shape) {
+    return;
+  }
+
+  highlightedShapeId = shapeId;
+  renderGallery();
+  showView("gallery");
+  window.setTimeout(() => {
+    const card = galleryList.querySelector(`[data-shape-id="${CSS.escape(shapeId)}"]`);
+    if (card) {
+      card.scrollIntoView({ block: "center", behavior: "smooth" });
+    }
+  }, 80);
 }
 
 function openDiaryDetail(diaryId) {
