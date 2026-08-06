@@ -47,12 +47,16 @@ const diaryFeelingInput = diaryForm.querySelector('[name="feelingText"]');
 const diaryTalkToInput = diaryForm.querySelector('[name="talkTo"]');
 const diaryCardTitleInput = diaryForm.querySelector('[name="cardTitle"]');
 const diaryEventSummaryInput = diaryForm.querySelector('[name="eventSummary"]');
+const diaryAtmosphereLabelInput = diaryForm.querySelector('[name="atmosphereLabel"]');
+const diaryFeelingLabelInput = diaryForm.querySelector('[name="feelingLabel"]');
+const diaryTrianglePointCInput = diaryForm.querySelector('[name="trianglePointC"]');
+const diaryVennOverlapLabelInput = diaryForm.querySelector('[name="vennOverlapLabel"]');
 const diaryQuestionInput = diaryForm.querySelector('[name="questionForFriend"]');
 const recordLayerPreview = document.querySelector("#record-layer-preview");
 const talkCardPreviewTitle = document.querySelector("#talk-card-preview-title");
-const talkCardPreviewSummary = document.querySelector("#talk-card-preview-summary");
+const talkCardPreviewFigure = document.querySelector("#talk-card-preview-figure");
 const talkCardPreviewEmotions = document.querySelector("#talk-card-preview-emotions");
-const talkCardPreviewTalkTo = document.querySelector("#talk-card-preview-talkto");
+const talkCardChoice = document.querySelector("#talk-card-choice");
 const quickWeatherForm = document.querySelector("#quick-weather-form");
 const quickWeatherSelect = document.querySelector("#quick-weather-select");
 const quickWeatherStatus = document.querySelector("#quick-weather-status");
@@ -233,7 +237,7 @@ function bindDiaryForm() {
   updateTalkJournalPreview();
   diaryForm.addEventListener("input", (event) => {
     if (event.target === diaryEventInput && !diaryEventSummaryInput.dataset.edited) {
-      diaryEventSummaryInput.value = summarizeEventText(diaryEventInput.value);
+      diaryEventSummaryInput.value = shortLabel(diaryEventInput.value, "");
     }
     if (event.target === diaryEventSummaryInput) {
       diaryEventSummaryInput.dataset.edited = "true";
@@ -273,7 +277,12 @@ function bindDiaryForm() {
       feelingText,
       talkTo: getFormText(formData, "talkTo") || "まだ決めない",
       cardTitle: getFormText(formData, "cardTitle") || getFormText(formData, "title") || "話すカード",
-      eventSummary: getFormText(formData, "eventSummary") || summarizeEventText(eventText),
+      eventSummary: shortLabel(getFormText(formData, "eventSummary") || eventText, "起きたこと"),
+      atmosphereLabel: shortLabel(getFormText(formData, "atmosphereLabel") || atmosphereText, "みんなの空気"),
+      feelingLabel: shortLabel(getFormText(formData, "feelingLabel") || feelingText, "わたしの気持ち"),
+      trianglePointC: getFormText(formData, "trianglePointC") || "公式",
+      vennOverlapLabel: getFormText(formData, "vennOverlapLabel") || "まだ分からない部分",
+      talkCardType: existingDiary?.talkCardType || "",
       emotionKeywords,
       questionForFriend: getFormText(formData, "questionForFriend"),
       recordType,
@@ -301,6 +310,7 @@ function bindDiaryForm() {
     syncDiaryBodyFields();
     updateTalkJournalPreview();
     renderAll();
+    showTalkCardChoice(diary.id);
 
     const message = existingDiary
       ? "記録を更新しました。"
@@ -308,6 +318,10 @@ function bindDiaryForm() {
         ? "記録がひとつ、地層に積もりました。大切な記録が、星になりました。"
         : "記録がひとつ、地層に積もりました。";
     showMessage(diaryStatus, message);
+  });
+
+  talkCardChoice.querySelectorAll("[data-card-type]").forEach((button) => {
+    button.addEventListener("click", () => chooseTalkCardType(button.dataset.cardType));
   });
 }
 
@@ -945,12 +959,17 @@ function renderStrata() {
           ${isStarred ? " / 星にした記録" : ""}
         </p>
         <div class="strata-talk-summary">
-          <p><strong>起きたこと</strong>${escapeHtml(parts.eventSummary || "まだ要約はありません。")}</p>
+          <p><strong>カード</strong>${escapeHtml(parts.talkCardType ? talkCardTypeLabel(parts.talkCardType) : "このまま保存")}</p>
+          <p><strong>ラベル</strong>${escapeHtml([parts.eventSummary, parts.atmosphereLabel, parts.feelingLabel].filter(Boolean).join(" / "))}</p>
           <p><strong>気持ち</strong>${escapeHtml(parts.emotionKeywords.length ? parts.emotionKeywords.join(" / ") : "まだ選ばれていません。")}</p>
           <p><strong>話したい相手</strong>${escapeHtml(parts.talkTo)}</p>
         </div>
         <div class="strata-actions">
-          <button class="quiet-button show-talk-card" type="button" data-diary-id="${escapeHtml(diary.id)}">話すカード</button>
+          ${
+            parts.talkCardType
+              ? `<button class="quiet-button show-talk-card" type="button" data-diary-id="${escapeHtml(diary.id)}">図形カード</button>`
+              : ""
+          }
           <button class="quiet-button edit-diary" type="button" data-diary-id="${escapeHtml(diary.id)}">編集</button>
           <button class="quiet-button delete-action delete-diary" type="button" data-diary-id="${escapeHtml(diary.id)}">削除</button>
         </div>
@@ -1043,17 +1062,24 @@ function updateTalkJournalPreview() {
   const atmosphereText = diaryAtmosphereInput.value.trim();
   const feelingText = diaryFeelingInput.value.trim();
   const cardTitle = diaryCardTitleInput.value.trim() || "好きだったものが変わるとき";
-  const summary = diaryEventSummaryInput.value.trim() || summarizeEventText(eventText);
   const emotions = selectedEmotionKeywords();
-  const talkTo = diaryTalkToInput.value || "まだ決めない";
+  const parts = {
+    cardTitle,
+    eventSummary: diaryEventSummaryInput.value.trim() || shortLabel(eventText, "起きたこと"),
+    atmosphereLabel: diaryAtmosphereLabelInput.value.trim() || shortLabel(atmosphereText, "みんなの空気"),
+    feelingLabel: diaryFeelingLabelInput.value.trim() || shortLabel(feelingText, "わたしの気持ち"),
+    trianglePointC: diaryTrianglePointCInput.value || "公式",
+    vennOverlapLabel: diaryVennOverlapLabelInput.value || "まだ分からない部分",
+    emotionKeywords: emotions,
+    weather: diaryForm.querySelector('[name="weather"]').value || "clear",
+  };
 
   recordLayerPreview.classList.toggle("has-event", Boolean(eventText));
   recordLayerPreview.classList.toggle("has-atmosphere", Boolean(atmosphereText));
   recordLayerPreview.classList.toggle("has-feeling", Boolean(feelingText));
   talkCardPreviewTitle.textContent = cardTitle;
-  talkCardPreviewSummary.textContent = summary || "起きたことを書くと、ここに短く入ります。";
   talkCardPreviewEmotions.textContent = emotions.length ? emotions.join(" / ") : "まだ選ばれていません。";
-  talkCardPreviewTalkTo.textContent = talkTo;
+  talkCardPreviewFigure.innerHTML = renderTalkCardFigure({ weather: parts.weather }, parts, "layers");
 }
 
 function selectedEmotionKeywords() {
@@ -1068,6 +1094,39 @@ function summarizeEventText(text) {
     return normalized;
   }
   return `${normalized.slice(0, 38)}…`;
+}
+
+function shortLabel(text, fallback = "") {
+  const normalized = String(text || "").replace(/\s+/g, " ").trim();
+  if (!normalized) {
+    return fallback;
+  }
+  return normalized.length > 10 ? `${normalized.slice(0, 10)}…` : normalized;
+}
+
+function showTalkCardChoice(diaryId) {
+  talkCardChoice.hidden = false;
+  talkCardChoice.dataset.diaryId = diaryId;
+}
+
+function chooseTalkCardType(cardType) {
+  const diaryId = talkCardChoice.dataset.diaryId;
+  const diary = state.diaries.find((item) => item.id === diaryId);
+  if (!diary) {
+    return;
+  }
+
+  diary.talkCardType = cardType === "none" ? "" : cardType;
+  diary.updatedAt = new Date().toISOString();
+  saveState();
+  renderAll();
+  talkCardChoice.hidden = true;
+  showMessage(
+    diaryStatus,
+    cardType === "none"
+      ? "記録はこのまま保存しました。"
+      : "図形カードを保存しました。地層一覧から開けます。"
+  );
 }
 
 function startEditDiary(diaryId) {
@@ -1130,7 +1189,9 @@ function diaryTalkParts(diary) {
     diary.atmosphereText || diary.outerBody || (diary.recordType === "outer" ? legacyBody : "");
   const feelingText =
     diary.feelingText || diary.innerBody || (diary.recordType === "inner" ? legacyBody : "");
-  const eventSummary = diary.eventSummary || summarizeEventText(eventText);
+  const eventSummary = shortLabel(diary.eventSummary || eventText, "起きたこと");
+  const atmosphereLabel = shortLabel(diary.atmosphereLabel || atmosphereText, "みんなの空気");
+  const feelingLabel = shortLabel(diary.feelingLabel || feelingText, "わたしの気持ち");
   const emotionKeywords = Array.isArray(diary.emotionKeywords) ? diary.emotionKeywords : [];
   const cardTitle = diary.cardTitle || diary.title || "話すカード";
 
@@ -1141,6 +1202,11 @@ function diaryTalkParts(diary) {
     talkTo: diary.talkTo || "まだ決めない",
     cardTitle,
     eventSummary,
+    atmosphereLabel,
+    feelingLabel,
+    trianglePointC: diary.trianglePointC || "公式",
+    vennOverlapLabel: diary.vennOverlapLabel || "まだ分からない部分",
+    talkCardType: diary.talkCardType || "",
     emotionKeywords,
     questionForFriend: diary.questionForFriend || "",
   };
@@ -1166,6 +1232,62 @@ function renderTalkRecordMini(diary) {
   `;
 }
 
+function talkCardTypeLabel(type) {
+  return (
+    {
+      triangle: "三角形カード",
+      venn: "ベン図カード",
+      layers: "三層の記録図カード",
+    }[type] || "このまま保存"
+  );
+}
+
+function renderTalkCardFigure(diary, parts, type = "layers") {
+  const weather = diary?.weather || parts.weather || state.weather || "clear";
+  const eventLabel = escapeHtml(shortLabel(parts.eventSummary, "起きたこと"));
+  const atmosphereLabel = escapeHtml(shortLabel(parts.atmosphereLabel, "みんなの空気"));
+  const feelingLabel = escapeHtml(shortLabel(parts.feelingLabel, "わたしの気持ち"));
+  const emotions = escapeHtml(parts.emotionKeywords?.join(" / ") || "");
+
+  if (type === "triangle") {
+    return `
+      <div class="figure-card figure-card-triangle weather-${escapeHtml(weather)}">
+        <svg viewBox="0 0 220 170" aria-hidden="true">
+          <path d="M110 18 L36 142 L184 142 Z" fill="none" stroke="currentColor" stroke-width="2"/>
+          <circle cx="110" cy="18" r="14"/>
+          <circle cx="36" cy="142" r="14"/>
+          <circle cx="184" cy="142" r="14"/>
+        </svg>
+        <span class="triangle-point point-a"><b>自分</b><small>${feelingLabel}</small></span>
+        <span class="triangle-point point-b"><b>推し</b><small>${eventLabel}</small></span>
+        <span class="triangle-point point-c"><b>${escapeHtml(parts.trianglePointC || "公式")}</b><small>${atmosphereLabel}</small></span>
+      </div>
+    `;
+  }
+
+  if (type === "venn") {
+    return `
+      <div class="figure-card figure-card-venn weather-${escapeHtml(weather)}">
+        <div class="venn-card-shape" aria-hidden="true">
+          <span class="venn-card-circle venn-left"></span>
+          <span class="venn-card-circle venn-right"></span>
+        </div>
+        <span class="venn-label venn-left-label"><b>わたしの気持ち</b><small>${feelingLabel}</small></span>
+        <span class="venn-label venn-overlap-label"><b>${escapeHtml(parts.vennOverlapLabel || "まだ分からない部分")}</b><small>${emotions || " "}</small></span>
+        <span class="venn-label venn-right-label"><b>みんなの空気</b><small>${atmosphereLabel}</small></span>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="figure-card figure-card-layers weather-${escapeHtml(weather)}">
+      <span><b>起きたこと</b><small>${eventLabel}</small></span>
+      <span><b>みんなの空気</b><small>${atmosphereLabel}</small></span>
+      <span><b>わたしの気持ち</b><small>${feelingLabel}</small></span>
+    </div>
+  `;
+}
+
 function openTalkCard(diaryId) {
   const diary = state.diaries.find((item) => item.id === diaryId);
   if (!diary) {
@@ -1180,29 +1302,15 @@ function openTalkCard(diaryId) {
 
   const modal = document.createElement("div");
   modal.className = "talk-card-modal";
+  const cardType = parts.talkCardType || "layers";
   modal.innerHTML = `
     <article class="talk-card-modal-card" role="dialog" aria-modal="true" aria-label="話すカード">
-      <p class="card-kicker">会ったときに話すためのメモ</p>
+      <p class="card-kicker">友達に見せる図形カード</p>
       <h3>${escapeHtml(parts.cardTitle)}</h3>
-      <dl>
-        <div>
-          <dt>出来事</dt>
-          <dd>${escapeHtml(parts.eventSummary || "まだ要約はありません。")}</dd>
-        </div>
-        <div>
-          <dt>気持ち</dt>
-          <dd>${escapeHtml(parts.emotionKeywords.length ? parts.emotionKeywords.join(" / ") : "まだ選ばれていません。")}</dd>
-        </div>
-        <div>
-          <dt>話したい相手</dt>
-          <dd>${escapeHtml(parts.talkTo)}</dd>
-        </div>
-        ${
-          parts.questionForFriend
-            ? `<div><dt>聞いてみたいこと</dt><dd>${escapeHtml(parts.questionForFriend)}</dd></div>`
-            : ""
-        }
-      </dl>
+      ${renderTalkCardFigure(diary, parts, cardType)}
+      <p class="talk-card-emotions">${escapeHtml(parts.emotionKeywords.length ? parts.emotionKeywords.join(" / ") : "まだ選ばれていません。")}</p>
+      <p class="talk-card-date">${escapeHtml(formatDate(diary.createdAt))} / ${escapeHtml(labels.weather[diary.weather] || diary.weather)}</p>
+      <p class="talk-card-note">本文はこのカードには出ません。詳しいことは、会ったときに自分の言葉で話せます。</p>
       <button class="quiet-button" type="button">閉じる</button>
     </article>
   `;
@@ -1233,6 +1341,10 @@ function startEditDiary(diaryId) {
   diaryTalkToInput.value = parts.talkTo;
   diaryCardTitleInput.value = parts.cardTitle;
   diaryEventSummaryInput.value = parts.eventSummary;
+  diaryAtmosphereLabelInput.value = parts.atmosphereLabel;
+  diaryFeelingLabelInput.value = parts.feelingLabel;
+  diaryTrianglePointCInput.value = parts.trianglePointC;
+  diaryVennOverlapLabelInput.value = parts.vennOverlapLabel;
   diaryQuestionInput.value = parts.questionForFriend;
   diaryForm.querySelectorAll('[name="emotionKeywords"]').forEach((input) => {
     input.checked = parts.emotionKeywords.includes(input.value);
@@ -1241,6 +1353,7 @@ function startEditDiary(diaryId) {
   diaryForm.querySelector('[name="wave"]').value = diary.wave || "calm";
   diaryForm.querySelector('[name="important"]').checked = Boolean(diary.isStarred ?? diary.important);
   diarySubmitButton.textContent = "記録を更新する";
+  talkCardChoice.hidden = true;
   updateTalkJournalPreview();
   showView("library");
   showMessage(diaryStatus, "この記録を編集できます。");

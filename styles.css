@@ -1289,6 +1289,12 @@ form {
   gap: 14px;
 }
 
+.card-label-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
 .emotion-field {
   display: flex;
   flex-wrap: wrap;
@@ -1374,6 +1380,205 @@ form {
   color: rgba(39, 50, 61, 0.78);
   font-size: 0.82rem;
   line-height: 1.65;
+}
+
+.figure-card {
+  position: relative;
+  min-height: 210px;
+  margin: 12px 0;
+  overflow: hidden;
+  border: 1px solid rgba(88, 64, 45, 0.12);
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at 76% 18%, rgba(232, 198, 111, 0.18), transparent 20%),
+    linear-gradient(180deg, rgba(252, 246, 228, 0.92), rgba(238, 246, 241, 0.82));
+}
+
+.figure-card.weather-rain,
+.figure-card.weather-fog {
+  background:
+    radial-gradient(circle at 76% 18%, rgba(179, 192, 196, 0.18), transparent 20%),
+    linear-gradient(180deg, rgba(237, 242, 241, 0.94), rgba(246, 243, 232, 0.84));
+}
+
+.figure-card.weather-night {
+  background:
+    radial-gradient(circle at 76% 18%, rgba(232, 198, 111, 0.22), transparent 18%),
+    linear-gradient(180deg, rgba(60, 74, 84, 0.88), rgba(92, 106, 111, 0.78));
+  color: #fff8e7;
+}
+
+.figure-card-layers {
+  display: grid;
+  gap: 8px;
+  align-content: center;
+  padding: 18px;
+}
+
+.figure-card-layers span {
+  display: grid;
+  gap: 4px;
+  min-height: 48px;
+  padding: 10px 12px;
+  border: 1px solid rgba(73, 90, 87, 0.12);
+  border-radius: 999px 34px 34px 999px;
+  background: rgba(255, 255, 255, 0.58);
+}
+
+.figure-card-layers span:nth-child(2) {
+  margin-left: 18px;
+  background: rgba(220, 235, 231, 0.58);
+}
+
+.figure-card-layers span:nth-child(3) {
+  margin-left: 34px;
+  background: rgba(229, 238, 211, 0.64);
+}
+
+.figure-card b,
+.figure-card small {
+  display: block;
+  line-height: 1.35;
+}
+
+.figure-card b {
+  font-size: 0.72rem;
+}
+
+.figure-card small {
+  color: rgba(39, 50, 61, 0.72);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.weather-night small {
+  color: rgba(255, 248, 231, 0.78);
+}
+
+.figure-card-triangle {
+  color: #60706c;
+}
+
+.figure-card-triangle svg {
+  position: absolute;
+  inset: 22px 16px 20px;
+  width: calc(100% - 32px);
+  height: calc(100% - 42px);
+  opacity: 0.62;
+}
+
+.figure-card-triangle circle {
+  fill: rgba(232, 198, 111, 0.58);
+  stroke: rgba(88, 64, 45, 0.2);
+}
+
+.triangle-point,
+.venn-label {
+  position: absolute;
+  display: grid;
+  gap: 2px;
+  max-width: 118px;
+  padding: 8px 10px;
+  border: 1px solid rgba(88, 64, 45, 0.12);
+  border-radius: 8px;
+  background: rgba(255, 253, 247, 0.78);
+  color: rgba(39, 50, 61, 0.82);
+  text-align: center;
+}
+
+.point-a {
+  left: 50%;
+  top: 10px;
+  transform: translateX(-50%);
+}
+
+.point-b {
+  left: 12px;
+  bottom: 14px;
+}
+
+.point-c {
+  right: 12px;
+  bottom: 14px;
+}
+
+.venn-card-shape {
+  position: absolute;
+  inset: 34px 20px;
+}
+
+.venn-card-circle {
+  position: absolute;
+  top: 24px;
+  width: 132px;
+  height: 132px;
+  border: 2px solid rgba(73, 90, 87, 0.42);
+  border-radius: 50%;
+  background: rgba(149, 190, 203, 0.28);
+}
+
+.venn-left {
+  left: calc(50% - 132px);
+}
+
+.venn-right {
+  right: calc(50% - 132px);
+  background: rgba(232, 198, 111, 0.26);
+}
+
+.venn-left-label {
+  left: 12px;
+  bottom: 14px;
+}
+
+.venn-right-label {
+  right: 12px;
+  bottom: 14px;
+}
+
+.venn-overlap-label {
+  left: 50%;
+  top: 74px;
+  transform: translateX(-50%);
+  background: rgba(255, 253, 247, 0.86);
+}
+
+.talk-card-emotions,
+.talk-card-date,
+.talk-card-note {
+  margin: 10px 0 0;
+  color: rgba(39, 50, 61, 0.72);
+  font-size: 0.78rem;
+  line-height: 1.6;
+}
+
+.talk-card-emotions {
+  color: #60706c;
+  font-weight: 700;
+}
+
+.talk-card-choice {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid rgba(88, 64, 45, 0.14);
+  border-radius: 8px;
+  background: rgba(255, 253, 247, 0.76);
+}
+
+.talk-card-choice[hidden] {
+  display: none;
+}
+
+.talk-card-choice h3 {
+  margin: 0;
+  font-size: 0.98rem;
+}
+
+.talk-card-choice-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 label {
@@ -2244,7 +2449,7 @@ svg marker path {
 
 .strata-talk-summary {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px;
   margin-top: 8px;
 }
@@ -2452,6 +2657,7 @@ svg marker path {
   form,
   .record-shape-panel,
   .talk-card-builder,
+  .card-label-grid,
   .strata-talk-summary,
   .diary-both-fields,
   .diary-split-excerpt,

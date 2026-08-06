@@ -193,14 +193,10 @@
 
             <section class="talk-card-builder wide" aria-labelledby="talk-card-title">
               <div class="talk-card-form">
-                <p class="panel-kicker">話すカード</p>
+                <p class="panel-kicker">図形カードの下書き</p>
                 <label>
                   カードタイトル
                   <input name="cardTitle" type="text" placeholder="好きだったものが変わるとき">
-                </label>
-                <label>
-                  起きたことの短い要約
-                  <textarea name="eventSummary" rows="3" placeholder="起きたことから自動で入ります。必要なら編集できます。"></textarea>
                 </label>
                 <label>
                   この話を誰としたいか
@@ -212,9 +208,46 @@
                     <option value="先輩・後輩">先輩・後輩</option>
                   </select>
                 </label>
+
+                <div class="card-label-grid">
+                  <label>
+                    起きたことラベル
+                    <input name="eventSummary" type="text" maxlength="12" placeholder="変化の発表">
+                  </label>
+                  <label>
+                    空気ラベル
+                    <input name="atmosphereLabel" type="text" maxlength="12" placeholder="感謝と戸惑い">
+                  </label>
+                  <label>
+                    気持ちラベル
+                    <input name="feelingLabel" type="text" maxlength="12" placeholder="さびしさ">
+                  </label>
+                </div>
+
+                <div class="card-label-grid">
+                  <label>
+                    三角形の点C
+                    <select name="trianglePointC">
+                      <option value="公式">公式</option>
+                      <option value="世間">世間</option>
+                      <option value="友達">友達</option>
+                      <option value="ファン">ファン</option>
+                      <option value="その他">その他</option>
+                    </select>
+                  </label>
+                  <label>
+                    ベン図の重なり
+                    <select name="vennOverlapLabel">
+                      <option value="まだ分からない部分">まだ分からない部分</option>
+                      <option value="共感できた部分">共感できた部分</option>
+                      <option value="ずれていた部分">ずれていた部分</option>
+                    </select>
+                  </label>
+                </div>
+
                 <label>
-                  友達に聞いてみたいこと
-                  <input name="questionForFriend" type="text" placeholder="例：こういう時、どう受け止めている？">
+                  自分用メモ
+                  <input name="questionForFriend" type="text" placeholder="カードには出さない、自分だけの話し出しメモ">
                 </label>
                 <fieldset class="emotion-field">
                   <legend>感情キーワード</legend>
@@ -229,22 +262,11 @@
                 </fieldset>
               </div>
               <article class="talk-card-preview" id="talk-card-preview">
-                <p class="card-kicker">会ったときに話すためのメモ</p>
+                <p class="card-kicker">友達に見せる図形カード</p>
                 <h3 id="talk-card-preview-title">好きだったものが変わるとき</h3>
-                <dl>
-                  <div>
-                    <dt>出来事</dt>
-                    <dd id="talk-card-preview-summary">起きたことを書くと、ここに短く入ります。</dd>
-                  </div>
-                  <div>
-                    <dt>気持ち</dt>
-                    <dd id="talk-card-preview-emotions">まだ選ばれていません。</dd>
-                  </div>
-                  <div>
-                    <dt>話したい相手</dt>
-                    <dd id="talk-card-preview-talkto">まだ決めない</dd>
-                  </div>
-                </dl>
+                <div id="talk-card-preview-figure"></div>
+                <p class="talk-card-emotions" id="talk-card-preview-emotions">まだ選ばれていません。</p>
+                <p class="talk-card-note">本文はカードに出ません。詳しい話は、自分の言葉で足せます。</p>
               </article>
             </section>
 
@@ -278,6 +300,15 @@
 
             <button class="primary-button wide" type="submit">記録を地層に積む</button>
             <p class="form-note wide" id="diary-status" aria-live="polite"></p>
+            <section class="talk-card-choice wide" id="talk-card-choice" hidden>
+              <h3>この記録を、話せるかたちにする？</h3>
+              <div class="talk-card-choice-actions">
+                <button class="quiet-button" type="button" data-card-type="triangle">三角形にする</button>
+                <button class="quiet-button" type="button" data-card-type="venn">ベン図にする</button>
+                <button class="quiet-button" type="button" data-card-type="layers">三層の記録図にする</button>
+                <button class="quiet-button" type="button" data-card-type="none">このまま保存する</button>
+              </div>
+            </section>
           </form>
         </div>
       </section>
