@@ -115,8 +115,8 @@
           <button class="quiet-button" type="button" data-view="home">← 風景へ戻る</button>
           <div>
             <p class="eyebrow">記録の図書館</p>
-            <h2 id="library-title">推しで動いた気持ちを、友達と話せるかたちに。</h2>
-            <p class="screen-lead">起きたこと、みんなの空気、わたしの気持ちを分けて書くと、会ったときに話しやすい小さなカードになります。</p>
+            <h2 id="library-title">推しで動いた気持ちを、自分の言葉に戻す。</h2>
+            <p class="screen-lead">起きたこと、みんなの空気、わたしの気持ちを分けて書いておくと、あとから関係やずれをかたちにできます。</p>
           </div>
         </header>
 
@@ -156,8 +156,8 @@
             <section class="record-shape-panel wide" aria-labelledby="record-shape-title">
               <div class="record-shape-copy">
                 <p class="panel-kicker">記録の図書館</p>
-                <h3 id="record-shape-title">推しで動いた気持ちを、友達と話せるかたちに。</h3>
-                <p>起きたこと、みんなの空気、わたしの気持ちを分けて書くと、会ったときに話しやすい小さなカードになります。</p>
+                <h3 id="record-shape-title">推しで動いた気持ちを、自分の言葉に戻す。</h3>
+                <p>起きたこと、みんなの空気、わたしの気持ちを分けて書いておくと、あとから関係やずれをかたちにできます。</p>
               </div>
               <div class="record-layer-preview" id="record-layer-preview" data-focus-area="" aria-label="三層の記録図">
                 <span class="record-layer layer-event">起きたこと</span>
@@ -191,122 +191,14 @@
               <textarea name="feelingText" rows="5" placeholder="悲しいけれど、長く活動してくれたことへの安心もあった。"></textarea>
             </label>
 
-            <section class="talk-card-builder wide" aria-labelledby="talk-card-title">
-              <div class="talk-card-form">
-                <p class="panel-kicker">図形カードの下書き</p>
-                <label>
-                  カードタイトル
-                  <input name="cardTitle" type="text" placeholder="好きだったものが変わるとき">
-                </label>
-                <label>
-                  この話を誰としたいか
-                  <select name="talkTo">
-                    <option value="まだ決めない">まだ決めない</option>
-                    <option value="同じ推しの友達">同じ推しの友達</option>
-                    <option value="別ジャンルの友達">別ジャンルの友達</option>
-                    <option value="昔からの友達">昔からの友達</option>
-                    <option value="先輩・後輩">先輩・後輩</option>
-                  </select>
-                </label>
-
-                <div class="card-label-grid">
-                  <label>
-                    起きたことラベル
-                    <input name="eventSummary" type="text" maxlength="12" placeholder="変化の発表">
-                  </label>
-                  <label>
-                    空気ラベル
-                    <input name="atmosphereLabel" type="text" maxlength="12" placeholder="感謝と戸惑い">
-                  </label>
-                  <label>
-                    気持ちラベル
-                    <input name="feelingLabel" type="text" maxlength="12" placeholder="さびしさ">
-                  </label>
-                </div>
-
-                <div class="card-label-grid">
-                  <label>
-                    三角形の点C
-                    <select name="trianglePointC">
-                      <option value="公式">公式</option>
-                      <option value="世間">世間</option>
-                      <option value="友達">友達</option>
-                      <option value="ファン">ファン</option>
-                      <option value="その他">その他</option>
-                    </select>
-                  </label>
-                  <label>
-                    ベン図の重なり
-                    <select name="vennOverlapLabel">
-                      <option value="まだ分からない部分">まだ分からない部分</option>
-                      <option value="共感できた部分">共感できた部分</option>
-                      <option value="ずれていた部分">ずれていた部分</option>
-                    </select>
-                  </label>
-                </div>
-
-                <label>
-                  自分用メモ
-                  <input name="questionForFriend" type="text" placeholder="カードには出さない、自分だけの話し出しメモ">
-                </label>
-                <fieldset class="emotion-field">
-                  <legend>感情キーワード</legend>
-                  <label><input type="checkbox" name="emotionKeywords" value="うれしい">うれしい</label>
-                  <label><input type="checkbox" name="emotionKeywords" value="驚いた">驚いた</label>
-                  <label><input type="checkbox" name="emotionKeywords" value="誇らしい">誇らしい</label>
-                  <label><input type="checkbox" name="emotionKeywords" value="さびしい">さびしい</label>
-                  <label><input type="checkbox" name="emotionKeywords" value="複雑">複雑</label>
-                  <label><input type="checkbox" name="emotionKeywords" value="安心した">安心した</label>
-                  <label><input type="checkbox" name="emotionKeywords" value="距離を置きたい">距離を置きたい</label>
-                  <label><input type="checkbox" name="emotionKeywords" value="まだ分からない">まだ分からない</label>
-                </fieldset>
-              </div>
-              <article class="talk-card-preview" id="talk-card-preview">
-                <p class="card-kicker">友達に見せる図形カード</p>
-                <h3 id="talk-card-preview-title">好きだったものが変わるとき</h3>
-                <div id="talk-card-preview-figure"></div>
-                <p class="talk-card-emotions" id="talk-card-preview-emotions">まだ選ばれていません。</p>
-                <p class="talk-card-note">本文はカードに出ません。詳しい話は、自分の言葉で足せます。</p>
-              </article>
-            </section>
-
-            <label>
-              今日の天気
-              <select name="weather" required>
-                <option value="clear">晴れ</option>
-                <option value="cloudy">くもり</option>
-                <option value="rain">雨</option>
-                <option value="fog">霧</option>
-                <option value="storm">嵐</option>
-                <option value="dawn">夜明け</option>
-                <option value="sunset">夕焼け</option>
-                <option value="night">夜</option>
-              </select>
-            </label>
-
-            <label>
-              波の状態
-              <select name="wave" required>
-                <option value="calm">穏やか</option>
-                <option value="restless">少しざわざわ</option>
-                <option value="rough">大きく揺れている</option>
-              </select>
-            </label>
-
-            <label class="check-row">
-              <input name="important" type="checkbox">
-              <span>大事な記録にする</span>
-            </label>
-
             <button class="primary-button wide" type="submit">記録を地層に積む</button>
             <p class="form-note wide" id="diary-status" aria-live="polite"></p>
-            <section class="talk-card-choice wide" id="talk-card-choice" hidden>
-              <h3>この記録を、話せるかたちにする？</h3>
-              <div class="talk-card-choice-actions">
-                <button class="quiet-button" type="button" data-card-type="triangle">三角形にする</button>
-                <button class="quiet-button" type="button" data-card-type="venn">ベン図にする</button>
-                <button class="quiet-button" type="button" data-card-type="layers">三層の記録図にする</button>
-                <button class="quiet-button" type="button" data-card-type="none">このまま保存する</button>
+            <section class="record-shape-choice wide" id="record-shape-choice" hidden>
+              <h3>この記録を、かたちにしてみる？</h3>
+              <div class="record-shape-choice-actions">
+                <button class="quiet-button" type="button" data-shape-from-record="triangle">三角形にする</button>
+                <button class="quiet-button" type="button" data-shape-from-record="venn">ベン図にする</button>
+                <button class="quiet-button" type="button" data-shape-from-record="none">このまま保存する</button>
               </div>
             </section>
           </form>
