@@ -115,7 +115,8 @@
           <button class="quiet-button" type="button" data-view="home">← 風景へ戻る</button>
           <div>
             <p class="eyebrow">記録の図書館</p>
-            <h2 id="library-title">まだ言葉にならないものを、ここに置けます。</h2>
+            <h2 id="library-title">推しで動いた気持ちを、友達と話せるかたちに。</h2>
+            <p class="screen-lead">起きたこと、みんなの空気、わたしの気持ちを分けて書くと、会ったときに話しやすい小さなカードになります。</p>
           </div>
         </header>
 
@@ -151,61 +152,101 @@
             </form>
           </div>
 
-          <form class="journal-desk" id="diary-form">
+          <form class="journal-desk talk-journal" id="diary-form">
             <section class="record-shape-panel wide" aria-labelledby="record-shape-title">
               <div class="record-shape-copy">
-                <p class="panel-kicker">記録のかたち</p>
-                <h3 id="record-shape-title">内側・外側・余白に、今日の記録を置く</h3>
-                <p>長い文章は下の欄に置き、図形には短いラベルだけを表示します。</p>
+                <p class="panel-kicker">記録の図書館</p>
+                <h3 id="record-shape-title">推しで動いた気持ちを、友達と話せるかたちに。</h3>
+                <p>起きたこと、みんなの空気、わたしの気持ちを分けて書くと、会ったときに話しやすい小さなカードになります。</p>
               </div>
-              <div class="record-shape-preview" id="record-shape-preview" data-focus-area="" aria-label="記録のかたちのプレビュー">
-                <div class="record-margin-glow"></div>
-                <div class="record-egg record-egg-outer">
-                  <span id="record-outer-label-preview">外側</span>
-                </div>
-                <div class="record-egg record-egg-inner">
-                  <span id="record-inner-label-preview">内側</span>
-                </div>
-                <span class="record-margin-label" id="record-margin-label-preview">余白</span>
+              <div class="record-layer-preview" id="record-layer-preview" data-focus-area="" aria-label="三層の記録図">
+                <span class="record-layer layer-event">起きたこと</span>
+                <span class="record-layer layer-atmosphere">みんなの空気</span>
+                <span class="record-layer layer-feeling">わたしの気持ち</span>
               </div>
             </section>
 
-            <label>
-              タイトル
+            <label class="wide">
+              記録タイトル
               <input id="diary-title" name="title" type="text" placeholder="例：今日の発表を見たあと" required>
             </label>
 
             <input type="hidden" name="recordType" value="both">
 
-            <label>
-              内側ラベル
-              <input name="innerLabel" type="text" maxlength="10" placeholder="例：気持ち">
+            <label class="wide journal-field journal-field-event">
+              <span>起きたこと</span>
+              <small>公式発表、作品の公開、イベント、SNSで見た話題など、まずは出来事だけを書きます。</small>
+              <textarea name="eventText" rows="5" placeholder="好きなグループから、メンバーの卒業が発表された。"></textarea>
             </label>
 
-            <label>
-              外側ラベル
-              <input name="outerLabel" type="text" maxlength="10" placeholder="例：公式発表">
+            <label class="wide journal-field journal-field-atmosphere">
+              <span>みんなの空気</span>
+              <small>SNSやファンダム、周囲ではどんな反応があったか、自分の見えた範囲で書きます。</small>
+              <textarea name="atmosphereText" rows="5" placeholder="SNSでは感謝する投稿と、運営を批判する投稿の両方が多かった。"></textarea>
             </label>
 
-            <label>
-              余白ラベル
-              <input name="marginLabel" type="text" maxlength="10" placeholder="例：まだ途中">
+            <label class="wide journal-field journal-field-feeling">
+              <span>わたしの気持ち</span>
+              <small>最後に、自分はどう感じたのかを書きます。まとまっていなくても大丈夫です。</small>
+              <textarea name="feelingText" rows="5" placeholder="悲しいけれど、長く活動してくれたことへの安心もあった。"></textarea>
             </label>
 
-            <label class="wide">
-              内側の記録
-              <textarea name="innerBody" rows="6" placeholder="自分の感情、記憶、価値観、推しへの思いなど。"></textarea>
-            </label>
-
-            <label class="wide">
-              外側の記録
-              <textarea name="outerBody" rows="6" placeholder="公式、SNS、世間、出来事、周囲の反応など。"></textarea>
-            </label>
-
-            <label class="wide diary-body-single" data-body-mode="single">
-              まだ分けないメモ
-              <textarea name="body" rows="5" placeholder="内側とも外側とも言い切れないことを、ここに置けます。"></textarea>
-            </label>
+            <section class="talk-card-builder wide" aria-labelledby="talk-card-title">
+              <div class="talk-card-form">
+                <p class="panel-kicker">話すカード</p>
+                <label>
+                  カードタイトル
+                  <input name="cardTitle" type="text" placeholder="好きだったものが変わるとき">
+                </label>
+                <label>
+                  起きたことの短い要約
+                  <textarea name="eventSummary" rows="3" placeholder="起きたことから自動で入ります。必要なら編集できます。"></textarea>
+                </label>
+                <label>
+                  この話を誰としたいか
+                  <select name="talkTo">
+                    <option value="まだ決めない">まだ決めない</option>
+                    <option value="同じ推しの友達">同じ推しの友達</option>
+                    <option value="別ジャンルの友達">別ジャンルの友達</option>
+                    <option value="昔からの友達">昔からの友達</option>
+                    <option value="先輩・後輩">先輩・後輩</option>
+                  </select>
+                </label>
+                <label>
+                  友達に聞いてみたいこと
+                  <input name="questionForFriend" type="text" placeholder="例：こういう時、どう受け止めている？">
+                </label>
+                <fieldset class="emotion-field">
+                  <legend>感情キーワード</legend>
+                  <label><input type="checkbox" name="emotionKeywords" value="うれしい">うれしい</label>
+                  <label><input type="checkbox" name="emotionKeywords" value="驚いた">驚いた</label>
+                  <label><input type="checkbox" name="emotionKeywords" value="誇らしい">誇らしい</label>
+                  <label><input type="checkbox" name="emotionKeywords" value="さびしい">さびしい</label>
+                  <label><input type="checkbox" name="emotionKeywords" value="複雑">複雑</label>
+                  <label><input type="checkbox" name="emotionKeywords" value="安心した">安心した</label>
+                  <label><input type="checkbox" name="emotionKeywords" value="距離を置きたい">距離を置きたい</label>
+                  <label><input type="checkbox" name="emotionKeywords" value="まだ分からない">まだ分からない</label>
+                </fieldset>
+              </div>
+              <article class="talk-card-preview" id="talk-card-preview">
+                <p class="card-kicker">会ったときに話すためのメモ</p>
+                <h3 id="talk-card-preview-title">好きだったものが変わるとき</h3>
+                <dl>
+                  <div>
+                    <dt>出来事</dt>
+                    <dd id="talk-card-preview-summary">起きたことを書くと、ここに短く入ります。</dd>
+                  </div>
+                  <div>
+                    <dt>気持ち</dt>
+                    <dd id="talk-card-preview-emotions">まだ選ばれていません。</dd>
+                  </div>
+                  <div>
+                    <dt>話したい相手</dt>
+                    <dd id="talk-card-preview-talkto">まだ決めない</dd>
+                  </div>
+                </dl>
+              </article>
+            </section>
 
             <label>
               今日の天気
