@@ -103,8 +103,8 @@
             </div>
           </div>
 
-          <button class="strata-preview" id="strata-preview" type="button" data-view="strata" aria-label="地層をたどる">
-            <span class="strata-title">地層をたどる</span>
+          <button class="strata-preview" id="strata-preview" type="button" data-view="strata" aria-label="本棚をひらく">
+            <span class="strata-title">本棚をひらく</span>
             <span class="layer-stack" id="home-layer-stack"></span>
           </button>
         </div>
@@ -159,7 +159,7 @@
                 <h3 id="record-shape-title">推しで動いた気持ちを、自分の言葉に戻す。</h3>
                 <p>起きたこと、みんなの空気、わたしの気持ちを分けて書いておくと、あとから関係やずれをかたちにできます。</p>
               </div>
-              <div class="record-layer-preview" id="record-layer-preview" data-focus-area="" aria-label="三層の記録図">
+              <div class="record-layer-preview record-house-preview" id="record-layer-preview" data-focus-area="" aria-label="三つの部屋を持つ記録の家">
                 <span class="record-layer layer-event">起きたこと</span>
                 <span class="record-layer layer-atmosphere">みんなの空気</span>
                 <span class="record-layer layer-feeling">わたしの気持ち</span>
@@ -191,14 +191,14 @@
               <textarea name="feelingText" rows="5" placeholder="悲しいけれど、長く活動してくれたことへの安心もあった。"></textarea>
             </label>
 
-            <button class="primary-button wide" type="submit">記録を地層に積む</button>
+            <button class="primary-button wide" type="submit">記録を本棚にしまう</button>
             <p class="form-note wide" id="diary-status" aria-live="polite"></p>
             <section class="record-shape-choice wide" id="record-shape-choice" hidden>
               <h3>この記録を、かたちにしてみる？</h3>
               <div class="record-shape-choice-actions">
                 <button class="quiet-button" type="button" data-shape-from-record="triangle">三角形にする</button>
                 <button class="quiet-button" type="button" data-shape-from-record="venn">ベン図にする</button>
-                <button class="quiet-button" type="button" data-shape-from-record="none">このまま保存する</button>
+                <button class="quiet-button" type="button" data-shape-from-record="none">このまま本棚にしまう</button>
               </div>
             </section>
           </form>
@@ -491,8 +491,8 @@
         <header class="screen-header strata-header">
           <button class="quiet-button" type="button" data-view="home">← 風景へ戻る</button>
           <div>
-            <p class="eyebrow">地層をたどる</p>
-            <h2 id="strata-title">記録がひとつずつ、時間の層になる。</h2>
+            <p class="eyebrow">記録の本棚</p>
+            <h2 id="strata-title">書いた記録は、本のようにここにしまわれます。</h2>
           </div>
         </header>
         <div class="strata-room" id="strata-list" aria-live="polite"></div>

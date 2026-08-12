@@ -282,7 +282,7 @@ function bindDiaryForm() {
     saveState();
     diaryForm.reset();
     editingDiaryId = null;
-    diarySubmitButton.textContent = "記録を地層に積む";
+    diarySubmitButton.textContent = "記録を本棚にしまう";
     syncDiaryBodyFields();
     updateTalkJournalPreview();
     renderAll();
@@ -291,8 +291,8 @@ function bindDiaryForm() {
     const message = existingDiary
       ? "記録を更新しました。"
       : diary.important
-        ? "記録がひとつ、地層に積もりました。大切な記録が、星になりました。"
-        : "記録がひとつ、地層に積もりました。";
+        ? "この記録を、本棚にしまいました。"
+        : "この記録を、本棚にしまいました。";
     showMessage(diaryStatus, message);
   });
 
@@ -525,7 +525,7 @@ function bindSettingsControls() {
     freeMemoForm.reset();
     shapeForm.reset();
     recordShapeChoice.hidden = true;
-    diarySubmitButton.textContent = "記録を地層に積む";
+    diarySubmitButton.textContent = "記録を本棚にしまう";
     shapeSubmitButton.textContent = "かたちを保存する";
     syncDiaryBodyFields();
     updateTalkJournalPreview();
@@ -861,7 +861,7 @@ function renderCreatureMessage() {
   } else if (state.weather === "night" && importantCount > 0) {
     creatureMessage.textContent = "星は、少し小さくても見えています。";
   } else if (state.diaries.length >= 3) {
-    creatureMessage.textContent = "地層が少しずつ、あなたの速さを覚えています。";
+    creatureMessage.textContent = "本棚が少しずつ、あなたの言葉を覚えています。";
   } else {
     creatureMessage.textContent = "まだ言葉にならないものを、ここに置けます。";
   }
@@ -920,7 +920,7 @@ function renderStrata() {
   strataList.innerHTML = "";
 
   if (state.diaries.length === 0) {
-    strataList.append(createEmptyState("まだ地層はありません。図書館で最初の記録を置けます。"));
+    strataList.append(createEmptyState("まだ本棚に記録はありません。図書館で最初の本をしまえます。"));
     return;
   }
 
@@ -935,15 +935,9 @@ function renderStrata() {
 
     layer.innerHTML = `
       <div class="strata-date">${escapeHtml(formatDate(diary.createdAt))}</div>
-      ${renderTalkRecordMini(diary)}
       <div class="strata-content">
         <h3>${escapeHtml(diary.title)}</h3>
-        <p class="strata-meta">
-          ${escapeHtml(labels.weather[diary.weather] || diary.weather)}
-          / ${escapeHtml(labels.wave[diary.wave] || diary.wave)}
-          ${isStarred ? " / 星" : ""}
-          ${linkedShapes.length ? " / かたちあり" : ""}
-        </p>
+        ${linkedShapes.length ? `<p class="strata-meta">かたちあり</p>` : ""}
         <div class="strata-actions">
           <button class="quiet-button read-diary" type="button" data-diary-id="${escapeHtml(diary.id)}">記録を読む</button>
           <button class="quiet-button edit-diary" type="button" data-diary-id="${escapeHtml(diary.id)}">編集</button>
@@ -1084,7 +1078,7 @@ function chooseShapeFromRecord(kind) {
 
   recordShapeChoice.hidden = true;
   if (kind === "none") {
-    showMessage(diaryStatus, "記録はこのまま保存しました。");
+    showMessage(diaryStatus, "記録はこのまま本棚にしまいました。");
     return;
   }
 
@@ -1134,7 +1128,7 @@ function deleteDiary(diaryId) {
   state.diaries = state.diaries.filter((item) => item.id !== diaryId);
   if (editingDiaryId === diaryId) {
     editingDiaryId = null;
-    diarySubmitButton.textContent = "記録を地層に積む";
+    diarySubmitButton.textContent = "記録を本棚にしまう";
     diaryForm.reset();
     syncDiaryBodyFields();
     updateTalkJournalPreview();
@@ -1231,6 +1225,7 @@ function openDiaryDetail(diaryId) {
   }
 
   const parts = diaryTalkParts(diary);
+  const linkedShapes = getLinkedShapes(diary.id);
   const existing = document.querySelector(".record-detail-modal");
   if (existing) {
     existing.remove();
@@ -1256,10 +1251,17 @@ function openDiaryDetail(diaryId) {
           <dd>${escapeHtml(parts.feelingText || "まだ書かれていません。")}</dd>
         </div>
       </dl>
+            ${linkedShapes.length ? `<button class="quiet-button detail-linked-shape" type="button" data-shape-id="${escapeHtml(linkedShapes[0].id)}">紐づいたかたちを見る</button>` : ""}
       <button class="quiet-button" type="button">閉じる</button>
     </article>
   `;
   modal.addEventListener("click", (event) => {
+    const linkedButton = event.target.closest(".detail-linked-shape");
+    if (linkedButton) {
+      modal.remove();
+      showLinkedShape(linkedButton.dataset.shapeId);
+      return;
+    }
     if (event.target === modal || event.target.closest("button")) {
       modal.remove();
     }
@@ -1377,6 +1379,12 @@ function openTalkCard(diaryId) {
     </article>
   `;
   modal.addEventListener("click", (event) => {
+    const linkedButton = event.target.closest(".detail-linked-shape");
+    if (linkedButton) {
+      modal.remove();
+      showLinkedShape(linkedButton.dataset.shapeId);
+      return;
+    }
     if (event.target === modal || event.target.closest("button")) {
       modal.remove();
     }
