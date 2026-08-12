@@ -3437,3 +3437,157 @@ svg marker path {
     height: 82px;
   }
 }
+
+/* Atelier stationery cleanup: keep only recognizable, quiet tools */
+.atelier-room {
+  background:
+    linear-gradient(180deg, #f5efe2, #e7eadf 100%);
+}
+
+.worktable {
+  overflow: visible;
+  background:
+    linear-gradient(90deg, rgba(122, 91, 62, 0.055) 0 1px, transparent 1px),
+    linear-gradient(180deg, rgba(255, 253, 247, 0.92), rgba(239, 226, 202, 0.94)),
+    #f5ead2;
+  background-size: 32px 32px, auto, auto;
+}
+
+.worktable::before,
+.worktable::after,
+.tool-compass,
+.tool-thread {
+  display: none;
+}
+
+.paper-preview {
+  overflow: visible;
+  isolation: isolate;
+}
+
+.paper-preview::before {
+  left: 24px;
+  top: -14px;
+  width: 104px;
+  height: 26px;
+  border-radius: 3px;
+  background:
+    repeating-linear-gradient(45deg, rgba(255, 253, 247, 0.24) 0 8px, transparent 8px 16px),
+    rgba(232, 198, 111, 0.44);
+  transform: rotate(-3deg);
+}
+
+.paper-preview::after {
+  right: 26px;
+  top: -12px;
+  width: 92px;
+  height: 24px;
+  border-radius: 3px;
+  background:
+    repeating-linear-gradient(45deg, rgba(255, 253, 247, 0.22) 0 8px, transparent 8px 16px),
+    rgba(159, 195, 213, 0.32);
+  transform: rotate(4deg);
+}
+
+.tool-tape {
+  display: none;
+}
+
+.tool-ruler {
+  left: 24px;
+  bottom: 22px;
+  width: 154px;
+  height: 20px;
+  border: 1px solid rgba(122, 91, 62, 0.12);
+  border-radius: 3px;
+  background:
+    repeating-linear-gradient(90deg, rgba(60, 48, 38, 0.22) 0 1px, transparent 1px 10px),
+    linear-gradient(180deg, rgba(255, 253, 247, 0.28), transparent),
+    rgba(232, 198, 111, 0.38);
+  transform: rotate(5deg);
+}
+
+.tool-clip {
+  right: 56px;
+  top: 112px;
+  z-index: 4;
+  width: 28px;
+  height: 52px;
+  border: 3px solid rgba(84, 103, 106, 0.52);
+  border-bottom-color: transparent;
+  border-radius: 16px 16px 12px 12px;
+  background: transparent;
+  transform: rotate(10deg);
+  box-shadow: none;
+}
+
+.tool-clip::before {
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: 8px;
+  width: 13px;
+  height: 34px;
+  border: 3px solid rgba(84, 103, 106, 0.42);
+  border-bottom-color: transparent;
+  border-radius: 12px 12px 8px 8px;
+}
+
+.tool-pen {
+  right: 24px;
+  top: auto;
+  bottom: 72px;
+  z-index: 3;
+  width: 14px;
+  height: 136px;
+  border: 1px solid rgba(88, 64, 45, 0.16);
+  border-radius: 999px 999px 6px 6px;
+  background:
+    linear-gradient(180deg, #f8eedc 0 10%, #b97c6f 10% 72%, #8a6a5f 72% 84%, #4f5f62 84% 100%);
+  transform: rotate(18deg);
+  box-shadow: 0 10px 20px rgba(75, 53, 40, 0.12);
+}
+
+.tool-pen::before {
+  content: "";
+  position: absolute;
+  left: 2px;
+  top: 20px;
+  width: 4px;
+  height: 62px;
+  border-radius: 999px;
+  background: rgba(255, 253, 247, 0.42);
+}
+
+.tool-pen::after {
+  content: "";
+  position: absolute;
+  right: -5px;
+  top: 18px;
+  width: 6px;
+  height: 42px;
+  border: 2px solid rgba(88, 64, 45, 0.22);
+  border-left: 0;
+  border-radius: 0 8px 8px 0;
+}
+
+@media (max-width: 620px) {
+  .tool-clip {
+    right: 34px;
+    top: 102px;
+    transform: rotate(8deg) scale(0.92);
+  }
+
+  .tool-pen {
+    right: 12px;
+    bottom: 58px;
+    height: 102px;
+    transform: rotate(17deg) scale(0.92);
+  }
+
+  .tool-ruler {
+    left: 18px;
+    width: 118px;
+    opacity: 0.72;
+  }
+}
