@@ -3591,3 +3591,115 @@ svg marker path {
     opacity: 0.72;
   }
 }
+
+/* Record house illustration refinement */
+.record-layer-preview.record-house-preview {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 0;
+  min-height: 218px;
+  padding: 86px 26px 24px;
+  overflow: hidden;
+  border-color: rgba(122, 91, 62, 0.15);
+  background:
+    linear-gradient(180deg, transparent 0 52px, rgba(255, 253, 247, 0.86) 52px 100%),
+    linear-gradient(180deg, rgba(255, 248, 226, 0.94), rgba(244, 232, 207, 0.8));
+}
+
+.record-layer-preview.record-house-preview::before {
+  left: 38px;
+  right: 38px;
+  top: 22px;
+  height: 72px;
+  clip-path: polygon(50% 0, 96% 56%, 90% 56%, 90% 100%, 10% 100%, 10% 56%, 4% 56%);
+  border-radius: 10px 10px 4px 4px;
+  background:
+    linear-gradient(135deg, rgba(178, 109, 83, 0.22), rgba(232, 198, 111, 0.24)),
+    #ead8ad;
+  box-shadow: inset 0 -1px 0 rgba(122, 91, 62, 0.12);
+}
+
+.record-layer-preview.record-house-preview::after {
+  right: 34px;
+  bottom: 28px;
+  width: 50px;
+  height: 44px;
+  border: 1px solid rgba(122, 91, 62, 0.14);
+  border-bottom: 6px solid rgba(122, 91, 62, 0.24);
+  border-radius: 5px 5px 2px 2px;
+  background:
+    linear-gradient(90deg, #b97c6f 0 18%, #f2dda2 18% 36%, #8da7a2 36% 56%, #fff4df 56% 74%, #7fa7c7 74% 100%);
+  box-shadow: 0 8px 16px rgba(75, 53, 40, 0.08);
+}
+
+.record-house-preview .record-layer {
+  z-index: 1;
+  min-height: 92px;
+  padding: 14px 8px 12px;
+  border-color: rgba(122, 91, 62, 0.14);
+  box-shadow: inset 0 0 0 1px rgba(255, 253, 247, 0.42);
+}
+
+.record-house-preview .record-layer::before {
+  width: 30px;
+  height: 24px;
+  margin-bottom: 8px;
+  border-color: rgba(96, 112, 108, 0.18);
+  border-radius: 6px 6px 3px 3px;
+}
+
+.record-house-preview .layer-event {
+  border-radius: 12px 0 0 12px;
+  background:
+    linear-gradient(180deg, rgba(255, 253, 247, 0.62), transparent),
+    rgba(232, 198, 111, 0.25);
+}
+
+.record-house-preview .layer-atmosphere {
+  border-left: 0;
+  border-right: 0;
+  border-radius: 0;
+}
+
+.record-house-preview .layer-feeling {
+  border-radius: 0 12px 12px 0;
+  padding-right: 58px;
+}
+
+@media (max-width: 620px) {
+  .record-layer-preview.record-house-preview {
+    grid-template-columns: 1fr;
+    gap: 0;
+    min-height: 310px;
+    padding: 82px 24px 22px;
+  }
+
+  .record-house-preview .record-layer {
+    min-height: 62px;
+    border-radius: 0;
+    border-left: 1px solid rgba(122, 91, 62, 0.14);
+    border-right: 1px solid rgba(122, 91, 62, 0.14);
+  }
+
+  .record-house-preview .layer-event {
+    border-radius: 12px 12px 0 0;
+  }
+
+  .record-house-preview .layer-feeling {
+    border-radius: 0 0 12px 12px;
+    padding-right: 52px;
+  }
+
+  .record-layer-preview.record-house-preview::before {
+    left: 34px;
+    right: 34px;
+    height: 68px;
+  }
+
+  .record-layer-preview.record-house-preview::after {
+    right: 34px;
+    bottom: 24px;
+    width: 44px;
+    height: 38px;
+  }
+}
