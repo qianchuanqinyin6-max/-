@@ -4514,3 +4514,30 @@ svg marker path {
 .talk-journal .record-shape-panel {
   display: none !important;
 }
+
+/* Rounded title typography */
+#home-title {
+  font-family:
+    "Hiragino Maru Gothic ProN",
+    "Hiragino Maru Gothic Pro",
+    "Yu Gothic UI",
+    "Yu Gothic",
+    "BIZ UDPGothic",
+    Meiryo,
+    system-ui,
+    sans-serif;
+  font-size: clamp(2.1rem, 5.2vw, 4rem);
+  font-weight: 900;
+  line-height: 1.04;
+  letter-spacing: 0.02em;
+  color: #0b0f12;
+  font-feature-settings: "palt" 0;
+  -webkit-text-stroke: 0.015em currentColor;
+}
+
+@media (max-width: 620px) {
+  #home-title {
+    font-size: clamp(2rem, 10vw, 3rem);
+    line-height: 1.08;
+  }
+}
