@@ -4509,3 +4509,8 @@ svg marker path {
     min-height: 156px;
   }
 }
+
+/* Remove the remaining record house preview block */
+.talk-journal .record-shape-panel {
+  display: none !important;
+}
