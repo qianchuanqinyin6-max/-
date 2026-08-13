@@ -4303,3 +4303,24 @@ svg marker path {
     height: 46px;
   }
 }
+
+/* Hide the triangular roof in the record house preview */
+.record-layer-preview.record-house-preview {
+  min-height: 154px;
+  padding-top: 12px;
+}
+
+.record-layer-preview.record-house-preview .house-roof {
+  display: none !important;
+}
+
+.record-layer-preview.record-house-preview .house-body {
+  margin-top: 0;
+}
+
+@media (max-width: 820px) {
+  .record-layer-preview.record-house-preview {
+    min-height: 208px;
+    padding-top: 12px;
+  }
+}
