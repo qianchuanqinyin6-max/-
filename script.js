@@ -1,4 +1,4 @@
-const STORAGE_KEY = "oshikatsu-landscape-prototype-v1";
+﻿const STORAGE_KEY = "oshikatsu-landscape-prototype-v1";
 
 const labels = {
   weather: {
@@ -35,7 +35,7 @@ const homeSea = document.querySelector("#home-sea");
 const homeWeatherForm = document.querySelector("#home-weather-form");
 const homeWeatherSelect = document.querySelector("#home-weather-select");
 const starField = document.querySelector("#star-field");
-const layerStack = document.querySelector("#home-layer-stack");
+const layerStacks = document.querySelectorAll("[data-home-layer-stack]");
 const creatureMessage = document.querySelector("#creature-message");
 const diaryForm = document.querySelector("#diary-form");
 const diaryStatus = document.querySelector("#diary-status");
@@ -825,24 +825,26 @@ function renderStars() {
 }
 
 function renderHomeLayers() {
-  layerStack.innerHTML = "";
-  if (state.diaries.length === 0) {
-    ["inner", "outer", "both"].forEach((type) => {
-      const layer = document.createElement("span");
-      layer.className = `home-layer layer-${type} muted`;
-      layerStack.append(layer);
-    });
-    return;
-  }
-
-  state.diaries.slice(0, 10).reverse().forEach((diary) => {
-    const layer = document.createElement("span");
-    layer.className = `home-layer layer-${diary.recordType}`;
-    if (diary.isStarred ?? diary.important) {
-      layer.classList.add("layer-starred");
+  layerStacks.forEach((stack) => {
+    stack.innerHTML = "";
+    if (state.diaries.length === 0) {
+      ["inner", "outer", "both"].forEach((type) => {
+        const layer = document.createElement("span");
+        layer.className = `home-layer layer-${type} muted`;
+        stack.append(layer);
+      });
+      return;
     }
-    layer.title = diary.title;
-    layerStack.append(layer);
+
+    state.diaries.slice(0, 10).reverse().forEach((diary) => {
+      const layer = document.createElement("span");
+      layer.className = `home-layer layer-${diary.recordType}`;
+      if (diary.isStarred ?? diary.important) {
+        layer.classList.add("layer-starred");
+      }
+      layer.title = diary.title;
+      stack.append(layer);
+    });
   });
 }
 
@@ -2250,3 +2252,4 @@ function escapeHtml(value) {
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
 }
+

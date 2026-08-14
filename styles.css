@@ -4577,3 +4577,12 @@ svg marker path {
     min-height: 102px;
   }
 }
+
+/* Restore the decorative strata band on the home landscape */
+.home-strata-decor {
+  cursor: default;
+}
+
+.home-strata-decor .layer-stack {
+  width: 100%;
+}
