@@ -4586,3 +4586,118 @@ svg marker path {
 .home-strata-decor .layer-stack {
   width: 100%;
 }
+
+/* Home strata: soft horizontal earth layers */
+.home-strata-decor {
+  position: relative;
+  min-height: 148px;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-top: 1px solid rgba(122, 91, 62, 0.12);
+  cursor: default;
+  background:
+    radial-gradient(ellipse at 14% 36%, rgba(122, 91, 62, 0.12) 0 1px, transparent 2px),
+    radial-gradient(ellipse at 68% 26%, rgba(122, 91, 62, 0.1) 0 1px, transparent 2px),
+    radial-gradient(ellipse at 84% 52%, rgba(122, 91, 62, 0.12) 0 1px, transparent 2px),
+    linear-gradient(180deg, #d9ad72 0 30%, #e2bf80 30% 44%, #d9c88d 44% 56%, #aeb8aa 56% 67%, #c39a79 67% 78%, #9b6f55 78% 100%);
+}
+
+.home-strata-decor::before,
+.home-strata-decor::after {
+  content: "";
+  position: absolute;
+  left: -4%;
+  right: -4%;
+  pointer-events: none;
+}
+
+.home-strata-decor::before {
+  top: -18px;
+  height: 58px;
+  border-radius: 0 0 50% 50% / 0 0 42% 42%;
+  background:
+    radial-gradient(ellipse at 20% 62%, rgba(122, 91, 62, 0.12) 0 1px, transparent 2px),
+    radial-gradient(ellipse at 58% 48%, rgba(122, 91, 62, 0.1) 0 1px, transparent 2px),
+    linear-gradient(180deg, rgba(234, 188, 123, 0.96), rgba(211, 152, 87, 0.9));
+  box-shadow: 0 10px 18px rgba(122, 91, 62, 0.08);
+}
+
+.home-strata-decor::after {
+  bottom: -16px;
+  height: 58px;
+  border-radius: 48% 52% 0 0 / 36% 42% 0 0;
+  background:
+    linear-gradient(180deg, rgba(153, 103, 75, 0.44), rgba(119, 78, 58, 0.68)),
+    #8e604a;
+}
+
+.home-strata-decor .layer-stack {
+  position: absolute;
+  left: -3%;
+  right: -3%;
+  bottom: 30px;
+  display: grid;
+  align-items: stretch;
+  gap: 0;
+  min-height: 70px;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.home-strata-decor .home-layer {
+  display: block;
+  width: 106%;
+  height: 13px;
+  margin-left: -3%;
+  border-radius: 48% 52% 45% 55% / 42% 58% 40% 60%;
+  opacity: 0.9;
+  box-shadow: inset 0 1px 0 rgba(255, 253, 247, 0.18);
+}
+
+.home-strata-decor .home-layer:nth-child(2n) {
+  transform: translateX(1.4%) skewY(-0.5deg);
+}
+
+.home-strata-decor .home-layer:nth-child(3n) {
+  transform: translateX(-1.2%) skewY(0.45deg);
+}
+
+.home-strata-decor .home-layer.muted {
+  opacity: 0.58;
+}
+
+.home-strata-decor .layer-inner {
+  background: linear-gradient(90deg, #e7c27f, #d8a46a 48%, #e3bd7c);
+}
+
+.home-strata-decor .layer-outer {
+  background: linear-gradient(90deg, #b7bdb0, #9da99f 50%, #c3c1aa);
+}
+
+.home-strata-decor .layer-both {
+  background: linear-gradient(90deg, #d39b67, #e2c979 42%, #b2b9aa 72%, #c4906b);
+}
+
+.home-strata-decor .layer-starred {
+  box-shadow:
+    inset 18px 0 0 rgba(240, 212, 75, 0.55),
+    inset 0 1px 0 rgba(255, 253, 247, 0.18),
+    0 0 12px rgba(230, 159, 0, 0.18);
+}
+
+@media (max-width: 620px) {
+  .home-strata-decor {
+    min-height: 122px;
+  }
+
+  .home-strata-decor .layer-stack {
+    bottom: 24px;
+    min-height: 58px;
+  }
+
+  .home-strata-decor .home-layer {
+    height: 11px;
+  }
+}
